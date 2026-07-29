@@ -33,4 +33,4 @@ Connect the GitHub repository to Cloudflare Pages and deploy the `main` branch.
 
 ## Forms
 
-The initial static release opens a pre-filled message in the visitor's email app and sends it to `hello@yolkpay.com`. Replace this with a secure form endpoint or Cloudflare Pages Function before using forms for production lead capture.
+The contact form submits over HTTPS through FormSubmit and sends every inquiry to `info@yolkpay.com`. The endpoint is fixed in both the form fallback action and the JavaScript AJAX handler.
