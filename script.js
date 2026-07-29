@@ -28,18 +28,42 @@ document.querySelectorAll('.billing-toggle button').forEach((button) => {
 });
 
 document.querySelectorAll('[data-mail-form]').forEach((form) => {
-  form.addEventListener('submit', (event) => {
+  form.addEventListener('submit', async (event) => {
     event.preventDefault();
     if (!form.reportValidity()) return;
 
-    const data = new FormData(form);
-    const subject = form.dataset.subject || 'YolkPay website inquiry';
-    const body = [...data.entries()]
-      .map(([key, value]) => `${key}: ${value}`)
-      .join('\n');
     const status = form.querySelector('.form-status');
-    if (status) status.textContent = 'Your email app is opening with the completed request.';
-    window.location.href = `mailto:info@yolkpay.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const submitButton = form.querySelector('[type="submit"]');
+    const originalLabel = submitButton?.textContent || 'Send message';
+
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent = 'Sending…';
+    }
+    if (status) status.textContent = 'Sending your message…';
+
+    try {
+      const response = await fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { Accept: 'application/json' }
+      });
+      const result = await response.json().catch(() => ({}));
+
+      if (!response.ok || result.success !== true) {
+        throw new Error(result.message || 'The message could not be sent.');
+      }
+
+      form.reset();
+      if (status) status.textContent = 'Thank you. Your message has been sent to info@yolkpay.com.';
+    } catch (error) {
+      if (status) status.textContent = 'We could not send your message. Please email info@yolkpay.com directly.';
+    } finally {
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = originalLabel;
+      }
+    }
   });
 });
 
