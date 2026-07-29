@@ -159,6 +159,22 @@ if (loginView && dashboard) {
     return item;
   }
 
+  function applicationOwners(app) {
+    try {
+      const parsed = JSON.parse(app.owners_json || '[]');
+      if (Array.isArray(parsed) && parsed.length) return parsed;
+    } catch {
+      // Older records did not include structured owner data.
+    }
+    return [{
+      name: app.principal_name,
+      title: app.principal_title,
+      ownership_percent: app.ownership_percent,
+      phone: app.principal_phone,
+      email: app.principal_email
+    }];
+  }
+
   async function openApplication(id) {
     drawerContent.replaceChildren();
     drawerBackdrop.hidden = false;
@@ -199,10 +215,18 @@ if (loginView && dashboard) {
       statusField.appendChild(select);
       drawerContent.append(eyebrow, title, date, statusField);
 
+      const owners = applicationOwners(app);
       const groups = [
         ['Business', [['Country', app.country], ['Business type', app.business_type], ['Registration / licence', app.license_number], ['Address', app.business_address], ['Phone', app.business_phone], ['Email', app.business_email], ['Website', app.website], ['Established', app.established_date], ['Annual volume', app.annual_volume], ['Average transaction', app.average_transaction], ['Business activity', app.business_description]]],
-        ['Principal', [['Name', app.principal_name], ['Title', app.principal_title], ['Ownership', `${app.ownership_percent}%`], ['Phone', app.principal_phone], ['Email', app.principal_email]]],
-        ['Banking', [['Account type', app.bank_type]]]
+        ...owners.map((owner, index) => [
+          `Owner / controlling person ${index + 1}`,
+          [['Name', owner.name], ['Title', owner.title], ['Ownership', `${owner.ownership_percent}%`], ['Phone', owner.phone], ['Email', owner.email]],
+        ]),
+        ['Banking', [['Account type', app.bank_type]]],
+        ['Notification', [
+          ['Email status', app.notification_status || 'Unknown'],
+          ['Delivery detail', app.notification_error || (app.notification_status === 'sent' ? 'Notification sent to info@yolkpay.com' : '—')],
+        ]],
       ];
       groups.forEach(([name, values]) => {
         const heading = document.createElement('h3');

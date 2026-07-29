@@ -24,7 +24,7 @@
         <div>
           <div class="eyebrow">Merchant application</div>
           <h1>Let’s get your business <span>ready to accept payments.</span></h1>
-          <p>Tell us about your business, principal, and settlement account. You can review everything before submitting.</p>
+          <p>Tell us about your business, owners or controlling persons, and settlement account. You can review everything before submitting.</p>
         </div>
         <div class="application-trust-card">
           <span class="trust-shield" aria-hidden="true">✓</span>
@@ -37,18 +37,16 @@
       <div class="container application-layout">
         <aside class="application-steps" aria-label="Application progress">
           <div class="application-step active" data-step-indicator="1"><span>1</span><div><strong>Business</strong><small>Company and processing</small></div></div>
-          <div class="application-step" data-step-indicator="2"><span>2</span><div><strong>Principal</strong><small>Owner or signing officer</small></div></div>
+          <div class="application-step" data-step-indicator="2"><span>2</span><div><strong>Owners</strong><small>Control and identity</small></div></div>
           <div class="application-step" data-step-indicator="3"><span>3</span><div><strong>Banking</strong><small>Settlement information</small></div></div>
           <div class="application-step" data-step-indicator="4"><span>4</span><div><strong>Review</strong><small>Confirm and submit</small></div></div>
           <div class="application-side-note">
             <strong>Before you begin</strong>
-            <p>Have your business registration, government-issued ID, and void cheque ready.</p>
+            <p>Have your business registration, government-issued ID for every listed owner, and void cheque ready.</p>
           </div>
         </aside>
 
         <form class="merchant-application" action="/api/registration" method="post" enctype="multipart/form-data" data-registration-form novalidate>
-          <input type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" class="honey-field">
-
           <section class="application-panel active" data-form-step="1">
             <div class="panel-heading"><span>Step 1 of 4</span><h2>Business information</h2><p>Use the legal details shown on your registration documents.</p></div>
             <div class="field-grid">
@@ -79,22 +77,12 @@
           </section>
 
           <section class="application-panel" data-form-step="2" hidden>
-            <div class="panel-heading"><span>Step 2 of 4</span><h2>Principal information</h2><p>Provide the owner or authorized signing officer responsible for this account.</p></div>
-            <div class="field-grid">
-              <div class="field full"><label for="principal_name">Principal full legal name *</label><input id="principal_name" name="principal_name" type="text" maxlength="140" autocomplete="name" required></div>
-              <div class="field"><label for="principal_phone">Phone number *</label><input id="principal_phone" name="principal_phone" type="tel" maxlength="40" autocomplete="tel" required></div>
-              <div class="field"><label for="principal_email">Email *</label><input id="principal_email" name="principal_email" type="email" maxlength="254" autocomplete="email" required></div>
-              <div class="field">
-                <label for="ownership_percent">Ownership percentage *</label>
-                <div class="input-suffix"><input id="ownership_percent" name="ownership_percent" type="number" min="0" max="100" step="0.01" required><span>%</span></div>
-              </div>
-              <div class="field"><label for="principal_title">Title / position *</label><input id="principal_title" name="principal_title" type="text" maxlength="100" placeholder="e.g. President" required></div>
-              <div class="field full">
-                <label for="identity_document">Driver’s licence or passport *</label>
-                <div class="file-field"><input id="identity_document" name="identity_document" type="file" accept=".pdf,.png,.jpg,.jpeg" required><span data-file-label>PDF, PNG, or JPG · maximum 5 MB</span></div>
-              </div>
-              <div class="field full"><div class="security-note"><strong>No password requested</strong><p>YolkPay will send a secure account activation link after approval. Never enter a portal password in an application form.</p></div></div>
-            </div>
+            <div class="panel-heading"><span>Step 2 of 4</span><h2>Owners and controlling persons</h2><p>Add every individual whose ownership or control information and identity material should be reviewed. Use “Add another owner” when there is more than one.</p></div>
+            <input type="hidden" name="owner_count" value="1" data-owner-count>
+            <div class="owners-list" data-owners-list></div>
+            <button class="button ghost add-owner-button" type="button" data-add-owner><span aria-hidden="true">＋</span> Add another owner</button>
+            <div class="security-note owner-security-note"><strong>Separate supporting material for each person</strong><p>Each owner or controlling person must have their own name, ownership percentage, contact details, position, and government-issued identity document. The combined ownership percentage cannot exceed 100%.</p></div>
+            <div class="security-note"><strong>No password requested</strong><p>YolkPay will send a secure account activation link after approval. Never enter a portal password in an application form.</p></div>
             <div class="form-actions"><button class="button ghost" type="button" data-back>← Back</button><button class="button green" type="button" data-next>Continue <span aria-hidden="true">→</span></button></div>
           </section>
 
@@ -130,8 +118,32 @@
             <div class="eyebrow">Application received</div>
             <h2>Thank you. We’ll be in touch.</h2>
             <p>Your reference number is <strong data-reference></strong>. A YolkPay onboarding specialist will review your application and contact you if anything else is needed.</p>
+            <p class="submission-notification" data-notification-result></p>
             <div class="actions center-actions"><a class="button" href="index.html">Return to YolkPay</a><a class="button ghost" href="mailto:info@yolkpay.com">Contact us</a></div>
           </section>
+
+          <template data-owner-template>
+            <section class="owner-card" data-owner-card>
+              <div class="owner-card-heading">
+                <div><span data-owner-label>Owner 1</span><small>Ownership, control, and identity</small></div>
+                <button class="text-button remove-owner-button" type="button" data-remove-owner>Remove</button>
+              </div>
+              <div class="field-grid">
+                <div class="field full"><label data-label="name">Full legal name *</label><input data-owner-field="name" type="text" maxlength="140" autocomplete="name" required></div>
+                <div class="field"><label data-label="phone">Phone number *</label><input data-owner-field="phone" type="tel" maxlength="40" autocomplete="tel" required></div>
+                <div class="field"><label data-label="email">Email *</label><input data-owner-field="email" type="email" maxlength="254" autocomplete="email" required></div>
+                <div class="field">
+                  <label data-label="ownership_percent">Ownership percentage *</label>
+                  <div class="input-suffix"><input data-owner-field="ownership_percent" type="number" min="0" max="100" step="0.01" required><span>%</span></div>
+                </div>
+                <div class="field"><label data-label="title">Title / position *</label><input data-owner-field="title" type="text" maxlength="100" placeholder="e.g. President" required></div>
+                <div class="field full">
+                  <label data-label="identity_document">Driver’s licence or passport *</label>
+                  <div class="file-field"><input data-owner-field="identity_document" type="file" accept=".pdf,.png,.jpg,.jpeg" required><span data-file-label>PDF, PNG, or JPG · maximum 5 MB</span></div>
+                </div>
+              </div>
+            </section>
+          </template>
         </form>
       </div>
     </section>
