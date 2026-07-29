@@ -8,6 +8,20 @@
     "directory": "./",
     "binding": "ASSETS"
   },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "REGISTRATION_STORE",
+        "class_name": "RegistrationStore"
+      }
+    ]
+  },
+  "exports": {
+    "RegistrationStore": {
+      "type": "durable-object",
+      "storage": "sqlite"
+    }
+  },
   "send_email": [
     {
       "name": "EMAIL",

@@ -2,24 +2,141 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-  <meta name="description" content="Apply for a YolkPay merchant payment account.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Apply for a YolkPay merchant payment account through our secure merchant registration form.">
   <title>Merchant registration — YolkPay</title>
-  <script async src="https://tally.so/widgets/embed.js"></script>
-  <style>
-    html, body { margin: 0; height: 100%; overflow: hidden; background: #fff; }
-    iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-  </style>
+  <link rel="icon" href="assets/icon.svg">
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+  <script src="registration.js" defer></script>
 </head>
-<body>
-  <iframe
-    data-tally-src="https://tally.so/r/zx1dpk?transparentBackground=1"
-    width="100%"
-    height="100%"
-    frameborder="0"
-    marginheight="0"
-    marginwidth="0"
-    title="YolkPay Merchant Registration">
-  </iframe>
+<body class="application-page">
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="index.html"><img src="assets/logo.svg" alt="YolkPay"></a>
+      <a class="application-help" href="mailto:info@yolkpay.com">Need help? <strong>info@yolkpay.com</strong></a>
+    </div>
+  </header>
+
+  <main>
+    <section class="application-hero">
+      <div class="container application-hero-grid">
+        <div>
+          <div class="eyebrow">Merchant application</div>
+          <h1>Let’s get your business <span>ready to accept payments.</span></h1>
+          <p>Tell us about your business, principal, and settlement account. You can review everything before submitting.</p>
+        </div>
+        <div class="application-trust-card">
+          <span class="trust-shield" aria-hidden="true">✓</span>
+          <div><strong>Private and secure</strong><small>Your application is stored in YolkPay’s protected system and reviewed only for merchant onboarding.</small></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="application-section">
+      <div class="container application-layout">
+        <aside class="application-steps" aria-label="Application progress">
+          <div class="application-step active" data-step-indicator="1"><span>1</span><div><strong>Business</strong><small>Company and processing</small></div></div>
+          <div class="application-step" data-step-indicator="2"><span>2</span><div><strong>Principal</strong><small>Owner or signing officer</small></div></div>
+          <div class="application-step" data-step-indicator="3"><span>3</span><div><strong>Banking</strong><small>Settlement information</small></div></div>
+          <div class="application-step" data-step-indicator="4"><span>4</span><div><strong>Review</strong><small>Confirm and submit</small></div></div>
+          <div class="application-side-note">
+            <strong>Before you begin</strong>
+            <p>Have your business registration, government-issued ID, and void cheque ready.</p>
+          </div>
+        </aside>
+
+        <form class="merchant-application" action="/api/registration" method="post" enctype="multipart/form-data" data-registration-form novalidate>
+          <input type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" class="honey-field">
+
+          <section class="application-panel active" data-form-step="1">
+            <div class="panel-heading"><span>Step 1 of 4</span><h2>Business information</h2><p>Use the legal details shown on your registration documents.</p></div>
+            <div class="field-grid">
+              <div class="field full">
+                <label>Country *</label>
+                <div class="choice-row">
+                  <label class="choice-card"><input type="radio" name="country" value="Canada" required checked><span>🇨🇦 Canada</span></label>
+                  <label class="choice-card"><input type="radio" name="country" value="United States" required><span>🇺🇸 United States</span></label>
+                </div>
+              </div>
+              <div class="field full"><label for="business_type">Business type *</label><select id="business_type" name="business_type" required><option value="">Select business type</option><option>Sole Proprietorship</option><option>Corporation</option><option>Partnership</option><option>Tax Exempt Organization</option></select></div>
+              <div class="field"><label for="legal_name">Legal business name *</label><input id="legal_name" name="legal_name" type="text" maxlength="160" autocomplete="organization" required></div>
+              <div class="field"><label for="license_number">Business registration / licence number *</label><input id="license_number" name="license_number" type="text" maxlength="80" required></div>
+              <div class="field full"><label for="business_address">Full business address *</label><input id="business_address" name="business_address" type="text" maxlength="240" autocomplete="address-line1" required></div>
+              <div class="field"><label for="business_phone">Business phone *</label><input id="business_phone" name="business_phone" type="tel" maxlength="40" autocomplete="tel" required></div>
+              <div class="field"><label for="business_email">Business email *</label><input id="business_email" name="business_email" type="email" maxlength="254" autocomplete="email" required></div>
+              <div class="field"><label for="website">Business website</label><input id="website" name="website" type="url" maxlength="240" placeholder="https://"></div>
+              <div class="field"><label for="established_date">Date business established *</label><input id="established_date" name="established_date" type="date" required></div>
+              <div class="field"><label for="annual_volume">Estimated annual card volume *</label><select id="annual_volume" name="annual_volume" required><option value="">Select a range</option><option>Under $100,000</option><option>$100,000–$500,000</option><option>$500,000–$1,000,000</option><option>$1,000,000–$5,000,000</option><option>Over $5,000,000</option></select></div>
+              <div class="field"><label for="average_transaction">Average transaction amount (CAD/USD) *</label><input id="average_transaction" name="average_transaction" type="number" min="1" max="1000000" step="0.01" required></div>
+              <div class="field full"><label for="business_description">What do you sell, and how are goods or services delivered? *</label><textarea id="business_description" name="business_description" maxlength="1500" placeholder="Describe your products or services, sales channels, fulfilment, and customers." required></textarea></div>
+              <div class="field full">
+                <label for="business_document">Business registration or articles of incorporation *</label>
+                <div class="file-field"><input id="business_document" name="business_document" type="file" accept=".pdf,.png,.jpg,.jpeg" required><span data-file-label>PDF, PNG, or JPG · maximum 5 MB</span></div>
+              </div>
+            </div>
+            <div class="form-actions"><span></span><button class="button green" type="button" data-next>Continue <span aria-hidden="true">→</span></button></div>
+          </section>
+
+          <section class="application-panel" data-form-step="2" hidden>
+            <div class="panel-heading"><span>Step 2 of 4</span><h2>Principal information</h2><p>Provide the owner or authorized signing officer responsible for this account.</p></div>
+            <div class="field-grid">
+              <div class="field full"><label for="principal_name">Principal full legal name *</label><input id="principal_name" name="principal_name" type="text" maxlength="140" autocomplete="name" required></div>
+              <div class="field"><label for="principal_phone">Phone number *</label><input id="principal_phone" name="principal_phone" type="tel" maxlength="40" autocomplete="tel" required></div>
+              <div class="field"><label for="principal_email">Email *</label><input id="principal_email" name="principal_email" type="email" maxlength="254" autocomplete="email" required></div>
+              <div class="field">
+                <label for="ownership_percent">Ownership percentage *</label>
+                <div class="input-suffix"><input id="ownership_percent" name="ownership_percent" type="number" min="0" max="100" step="0.01" required><span>%</span></div>
+              </div>
+              <div class="field"><label for="principal_title">Title / position *</label><input id="principal_title" name="principal_title" type="text" maxlength="100" placeholder="e.g. President" required></div>
+              <div class="field full">
+                <label for="identity_document">Driver’s licence or passport *</label>
+                <div class="file-field"><input id="identity_document" name="identity_document" type="file" accept=".pdf,.png,.jpg,.jpeg" required><span data-file-label>PDF, PNG, or JPG · maximum 5 MB</span></div>
+              </div>
+              <div class="field full"><div class="security-note"><strong>No password requested</strong><p>YolkPay will send a secure account activation link after approval. Never enter a portal password in an application form.</p></div></div>
+            </div>
+            <div class="form-actions"><button class="button ghost" type="button" data-back>← Back</button><button class="button green" type="button" data-next>Continue <span aria-hidden="true">→</span></button></div>
+          </section>
+
+          <section class="application-panel" data-form-step="3" hidden>
+            <div class="panel-heading"><span>Step 3 of 4</span><h2>Settlement banking</h2><p>The account must be held in the legal business name.</p></div>
+            <div class="field-grid">
+              <div class="field full">
+                <label>Bank account type *</label>
+                <div class="choice-row">
+                  <label class="choice-card"><input type="radio" name="bank_type" value="Chequing" required checked><span>Chequing</span></label>
+                  <label class="choice-card"><input type="radio" name="bank_type" value="Savings" required><span>Savings</span></label>
+                </div>
+              </div>
+              <div class="field full">
+                <label for="void_cheque">Void cheque or bank letter *</label>
+                <div class="file-field"><input id="void_cheque" name="void_cheque" type="file" accept=".pdf,.png,.jpg,.jpeg" required><span data-file-label>PDF, PNG, or JPG · maximum 5 MB</span></div>
+              </div>
+              <div class="field full"><div class="security-note yolk"><strong>Why we need this</strong><p>This document is used to verify the settlement account. Bank account numbers are not displayed in the application list and documents remain private.</p></div></div>
+            </div>
+            <div class="form-actions"><button class="button ghost" type="button" data-back>← Back</button><button class="button green" type="button" data-next>Review application <span aria-hidden="true">→</span></button></div>
+          </section>
+
+          <section class="application-panel" data-form-step="4" hidden>
+            <div class="panel-heading"><span>Step 4 of 4</span><h2>Review and submit</h2><p>Confirm that the information is complete and accurate.</p></div>
+            <div class="review-grid" data-review></div>
+            <label class="consent-row"><input class="checkbox-input" type="checkbox" name="consent" value="yes" required><span>I certify that I am authorized to submit this application and that the information provided is true and complete. I consent to YolkPay using it for underwriting, compliance, identity verification, and merchant onboarding, subject to the <a href="privacy.html" target="_blank">Privacy Policy</a>. *</span></label>
+            <div class="form-status application-status" role="status" aria-live="polite"></div>
+            <div class="form-actions"><button class="button ghost" type="button" data-back>← Back</button><button class="button green submit-application" type="submit">Submit application</button></div>
+          </section>
+
+          <section class="application-success" data-registration-success hidden>
+            <div class="success-mark">✓</div>
+            <div class="eyebrow">Application received</div>
+            <h2>Thank you. We’ll be in touch.</h2>
+            <p>Your reference number is <strong data-reference></strong>. A YolkPay onboarding specialist will review your application and contact you if anything else is needed.</p>
+            <div class="actions center-actions"><a class="button" href="index.html">Return to YolkPay</a><a class="button ghost" href="mailto:info@yolkpay.com">Contact us</a></div>
+          </section>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer"><div class="container"><div class="footer-bottom compact"><span>© <span data-year></span> YolkPay Inc.</span><span><a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></span></div></div></footer>
 </body>
 </html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Merchant applications — YolkPay Admin</title>
+  <link rel="icon" href="assets/icon.svg">
+  <link rel="stylesheet" href="styles.css">
+  <script src="admin.js" defer></script>
+</head>
+<body class="admin-page">
+  <main class="admin-shell">
+    <section class="admin-login" data-admin-login>
+      <img src="assets/logo.svg" alt="YolkPay">
+      <div class="eyebrow">Secure admin</div>
+      <h1>Merchant applications</h1>
+      <p>A one-time verification code will be sent to the authorized YolkPay inbox.</p>
+      <form data-code-request>
+        <button class="button green" type="submit">Send code to info@yolkpay.com</button>
+        <div class="form-status" role="status"></div>
+      </form>
+      <form data-code-verify hidden>
+        <div class="field"><label for="admin_code">Verification code</label><input id="admin_code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" required></div>
+        <button class="button green" type="submit">Verify and sign in</button>
+        <button class="text-button" type="button" data-resend>Send a new code</button>
+        <div class="form-status" role="status"></div>
+      </form>
+    </section>
+
+    <section class="admin-dashboard" data-admin-dashboard hidden>
+      <header class="admin-header">
+        <div><img src="assets/logo.svg" alt="YolkPay"><span>Merchant applications</span></div>
+        <button class="button ghost small" type="button" data-logout>Sign out</button>
+      </header>
+      <div class="admin-content">
+        <div class="admin-title-row"><div><div class="kicker">Onboarding</div><h1>Applications</h1></div><div class="admin-stat"><strong data-total>0</strong><span>Total records</span></div></div>
+        <div class="admin-toolbar">
+          <label class="admin-search"><span>Search</span><input type="search" data-admin-search placeholder="Business, email, or reference"></label>
+          <label><span>Status</span><select data-status-filter><option value="">All statuses</option><option value="new">New</option><option value="reviewing">Reviewing</option><option value="approved">Approved</option><option value="declined">Declined</option><option value="more_info">More info needed</option></select></label>
+          <button class="button small" type="button" data-refresh>Refresh</button>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>Submitted</th><th>Business</th><th>Contact</th><th>Country</th><th>Status</th><th></th></tr></thead>
+            <tbody data-application-rows></tbody>
+          </table>
+          <div class="admin-empty" data-admin-empty hidden>No applications match this view.</div>
+        </div>
+        <div class="form-status" data-admin-status role="status"></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="admin-drawer-backdrop" data-drawer-backdrop hidden>
+    <aside class="admin-drawer" data-admin-drawer aria-label="Application details">
+      <button class="drawer-close" type="button" data-drawer-close aria-label="Close">×</button>
+      <div data-drawer-content></div>
+    </aside>
+  </div>
+</body>
+</html>

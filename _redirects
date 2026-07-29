@@ -15,3 +15,5 @@
 /apply.html /registration.html 301
 /merchants/ /merchants.html 301
 /documentation/ /documentation.html 301
+/admin /admin.html 302
+/admin/ /admin.html 302
