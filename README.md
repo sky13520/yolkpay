@@ -33,4 +33,4 @@ Connect the GitHub repository to Cloudflare Pages and deploy the `main` branch.
 
 ## Forms
 
-The contact form submits over HTTPS through FormSubmit and sends every inquiry to `info@yolkpay.com`. The endpoint is fixed in both the form fallback action and the JavaScript AJAX handler.
+The current static contact form still opens the visitor's email app. Production delivery must use the site's own Cloudflare email endpoint so customer form data is not disclosed to an unapproved third-party form service.
