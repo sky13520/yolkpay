@@ -6,6 +6,10 @@ if (registrationForm) {
   const successPanel = registrationForm.querySelector('[data-registration-success]');
   const review = registrationForm.querySelector('[data-review]');
   const status = registrationForm.querySelector('.application-status');
+  const ownersList = registrationForm.querySelector('[data-owners-list]');
+  const ownerTemplate = registrationForm.querySelector('[data-owner-template]');
+  const ownerCount = registrationForm.querySelector('[data-owner-count]');
+  const addOwnerButton = registrationForm.querySelector('[data-add-owner]');
   let currentStep = 1;
 
   const labels = {
@@ -22,15 +26,50 @@ if (registrationForm) {
     average_transaction: 'Average transaction',
     business_description: 'Business activity',
     business_document: 'Business document',
-    principal_name: 'Principal',
-    principal_phone: 'Principal phone',
-    principal_email: 'Principal email',
-    ownership_percent: 'Ownership',
-    principal_title: 'Title',
-    identity_document: 'Identity document',
     bank_type: 'Bank account',
     void_cheque: 'Settlement document'
   };
+
+  function ownerCards() {
+    return [...ownersList.querySelectorAll('[data-owner-card]')];
+  }
+
+  function updateOwners() {
+    const cards = ownerCards();
+    ownerCount.value = String(cards.length);
+    cards.forEach((card, index) => {
+      card.querySelector('[data-owner-label]').textContent = `Owner / controlling person ${index + 1}`;
+      card.querySelector('[data-remove-owner]').hidden = cards.length === 1;
+      card.querySelectorAll('[data-owner-field]').forEach((field) => {
+        const key = field.dataset.ownerField;
+        const id = `owner_${index}_${key}`;
+        field.name = id;
+        field.id = id;
+        card.querySelector(`[data-label="${key}"]`)?.setAttribute('for', id);
+      });
+    });
+    addOwnerButton.disabled = cards.length >= 10;
+  }
+
+  function addOwner() {
+    if (ownerCards().length >= 10) return;
+    const fragment = ownerTemplate.content.cloneNode(true);
+    ownersList.appendChild(fragment);
+    updateOwners();
+  }
+
+  function validateOwnership() {
+    const fields = ownerCards().map((card) => card.querySelector('[data-owner-field="ownership_percent"]'));
+    const total = fields.reduce((sum, field) => sum + Number(field.value || 0), 0);
+    if (total > 100.00001) {
+      const last = fields[fields.length - 1];
+      last.setCustomValidity('The combined ownership percentage cannot exceed 100%.');
+      last.reportValidity();
+      last.setCustomValidity('');
+      return false;
+    }
+    return true;
+  }
 
   function activePanel() {
     return panels.find((panel) => Number(panel.dataset.formStep) === currentStep);
@@ -67,7 +106,7 @@ if (registrationForm) {
         return false;
       }
     }
-    return true;
+    return currentStep !== 2 || validateOwnership();
   }
 
   function displayValue(field) {
@@ -96,7 +135,38 @@ if (registrationForm) {
       item.append(label, value);
       review.appendChild(item);
     });
+    ownerCards().forEach((card, index) => {
+      const fields = Object.fromEntries(
+        [...card.querySelectorAll('[data-owner-field]')].map((field) => [field.dataset.ownerField, field]),
+      );
+      const ownerItems = [
+        ['Name', fields.name.value],
+        ['Title', fields.title.value],
+        ['Ownership', `${fields.ownership_percent.value}%`],
+        ['Phone', fields.phone.value],
+        ['Email', fields.email.value],
+        ['Identity document', fields.identity_document.files[0]?.name || 'Not attached'],
+      ];
+      ownerItems.forEach(([itemLabel, itemValue], itemIndex) => {
+        const item = document.createElement('div');
+        item.className = itemIndex === 0 ? 'review-item owner-review-heading full' : 'review-item';
+        const label = document.createElement('small');
+        label.textContent = itemIndex === 0 ? `Owner / controlling person ${index + 1}` : itemLabel;
+        const value = document.createElement('strong');
+        value.textContent = itemValue;
+        item.append(label, value);
+        review.appendChild(item);
+      });
+    });
   }
+
+  addOwnerButton.addEventListener('click', addOwner);
+  ownersList.addEventListener('click', (event) => {
+    const remove = event.target.closest('[data-remove-owner]');
+    if (!remove || ownerCards().length === 1) return;
+    remove.closest('[data-owner-card]').remove();
+    updateOwners();
+  });
 
   registrationForm.querySelectorAll('[data-next]').forEach((button) => {
     button.addEventListener('click', () => {
@@ -108,13 +178,15 @@ if (registrationForm) {
     button.addEventListener('click', () => showStep(Math.max(1, currentStep - 1)));
   });
 
-  registrationForm.querySelectorAll('input[type="file"]').forEach((input) => {
-    input.addEventListener('change', () => {
-      const label = input.closest('.file-field')?.querySelector('[data-file-label]');
-      const file = input.files[0];
-      if (label) label.textContent = file ? `${file.name} · ${(file.size / 1024 / 1024).toFixed(2)} MB` : 'PDF, PNG, or JPG · maximum 5 MB';
-    });
+  registrationForm.addEventListener('change', (event) => {
+    const input = event.target;
+    if (!(input instanceof HTMLInputElement) || input.type !== 'file') return;
+    const label = input.closest('.file-field')?.querySelector('[data-file-label]');
+    const file = input.files[0];
+    if (label) label.textContent = file ? `${file.name} · ${(file.size / 1024 / 1024).toFixed(2)} MB` : 'PDF, PNG, or JPG · maximum 5 MB';
   });
+
+  addOwner();
 
   registrationForm.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -122,8 +194,8 @@ if (registrationForm) {
 
     const files = [...registrationForm.querySelectorAll('input[type="file"]')].map((input) => input.files[0]).filter(Boolean);
     const totalSize = files.reduce((sum, file) => sum + file.size, 0);
-    if (totalSize > 12 * 1024 * 1024) {
-      status.textContent = 'The combined document size must be 12 MB or less.';
+    if (totalSize > 25 * 1024 * 1024) {
+      status.textContent = 'The combined document size must be 25 MB or less.';
       status.classList.add('error');
       return;
     }
@@ -148,6 +220,11 @@ if (registrationForm) {
       indicators.forEach((indicator) => indicator.classList.add('complete'));
       successPanel.hidden = false;
       successPanel.querySelector('[data-reference]').textContent = result.reference;
+      const notificationResult = successPanel.querySelector('[data-notification-result]');
+      notificationResult.textContent = result.notification_sent
+        ? 'A notification has been sent to the YolkPay onboarding team.'
+        : 'Your application is safely saved. The email notification needs attention, and the backend record is available for review.';
+      notificationResult.classList.toggle('warning', !result.notification_sent);
       registrationForm.reset();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (error) {
