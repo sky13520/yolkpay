@@ -4,7 +4,8 @@ const RECIPIENT = "info@yolkpay.com";
 const SENDER = "info@yolkpay.com";
 const SESSION_COOKIE = "yp_admin";
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
-const MAX_TOTAL_FILE_SIZE = 12 * 1024 * 1024;
+const MAX_TOTAL_FILE_SIZE = 25 * 1024 * 1024;
+const MAX_OWNERS = 10;
 const FILE_CHUNK_SIZE = 1_500_000;
 const ALLOWED_ORIGINS = new Set([
   "https://yolkpay.com",
@@ -38,6 +39,10 @@ function escapeHtml(value) {
 function value(formData, key) {
   const entry = formData.get(key);
   return typeof entry === "string" ? entry.trim() : "";
+}
+
+function ownerValue(formData, index, key) {
+  return value(formData, `owner_${index}_${key}`);
 }
 
 function isValidEmail(email) {
@@ -108,6 +113,36 @@ function fieldLimits(data) {
     data.principal_title.length <= 100 &&
     data.bank_type.length <= 30
   );
+}
+
+function parseOwners(formData) {
+  const count = Number(value(formData, "owner_count"));
+  if (!Number.isInteger(count) || count < 1 || count > MAX_OWNERS) return null;
+
+  const owners = [];
+  for (let index = 0; index < count; index += 1) {
+    const owner = {
+      name: ownerValue(formData, index, "name"),
+      phone: ownerValue(formData, index, "phone"),
+      email: ownerValue(formData, index, "email"),
+      ownership_percent: ownerValue(formData, index, "ownership_percent"),
+      title: ownerValue(formData, index, "title"),
+    };
+    const ownership = Number(owner.ownership_percent);
+    if (
+      !owner.name || owner.name.length > 140 ||
+      !owner.phone || owner.phone.length > 40 ||
+      !owner.email || owner.email.length > 254 || !isValidEmail(owner.email) ||
+      !owner.title || owner.title.length > 100 ||
+      !Number.isFinite(ownership) || ownership < 0 || ownership > 100
+    ) {
+      return null;
+    }
+    owners.push({ ...owner, ownership_percent: String(ownership) });
+  }
+
+  const totalOwnership = owners.reduce((total, owner) => total + Number(owner.ownership_percent), 0);
+  return totalOwnership <= 100.00001 ? owners : null;
 }
 
 async function handleContact(request, env) {
@@ -185,13 +220,13 @@ async function fileRecord(file, fieldName, label) {
   };
 }
 
-async function handleRegistration(request, env, ctx) {
+async function handleRegistration(request, env) {
   if (!isValidOrigin(request)) {
     return json({ success: false, message: "Invalid request origin." }, 403);
   }
 
   const contentLength = Number(request.headers.get("Content-Length") || 0);
-  if (contentLength > 15_000_000) {
+  if (contentLength > 30_000_000) {
     return json({ success: false, message: "The application is too large." }, 413);
   }
 
@@ -201,8 +236,6 @@ async function handleRegistration(request, env, ctx) {
   } catch {
     return json({ success: false, message: "The application could not be read." }, 400);
   }
-  if (value(formData, "_honey")) return json({ success: true, reference: "YP-RECEIVED" });
-
   const data = {
     country: value(formData, "country"),
     business_type: value(formData, "business_type"),
@@ -216,30 +249,32 @@ async function handleRegistration(request, env, ctx) {
     annual_volume: value(formData, "annual_volume"),
     average_transaction: value(formData, "average_transaction"),
     business_description: value(formData, "business_description"),
-    principal_name: value(formData, "principal_name"),
-    principal_phone: value(formData, "principal_phone"),
-    principal_email: value(formData, "principal_email"),
-    ownership_percent: value(formData, "ownership_percent"),
-    principal_title: value(formData, "principal_title"),
     bank_type: value(formData, "bank_type"),
   };
+  const owners = parseOwners(formData);
+  const primaryOwner = owners?.[0];
+  if (primaryOwner) {
+    data.principal_name = primaryOwner.name;
+    data.principal_phone = primaryOwner.phone;
+    data.principal_email = primaryOwner.email;
+    data.ownership_percent = primaryOwner.ownership_percent;
+    data.principal_title = primaryOwner.title;
+    data.owners_json = JSON.stringify(owners);
+  }
 
   const required = [
     "country", "business_type", "legal_name", "license_number", "business_address",
     "business_phone", "business_email", "established_date", "annual_volume",
-    "average_transaction", "business_description", "principal_name",
-    "principal_phone", "principal_email", "ownership_percent", "principal_title", "bank_type",
+    "average_transaction", "business_description", "bank_type",
   ];
-  const ownership = Number(data.ownership_percent);
   const averageTransaction = Number(data.average_transaction);
   const established = /^\d{4}-\d{2}-\d{2}$/.test(data.established_date);
   if (
+    !owners ||
     required.some((key) => !data[key]) ||
     !fieldLimits(data) ||
     !["Canada", "United States"].includes(data.country) ||
     !isValidEmail(data.business_email) ||
-    !isValidEmail(data.principal_email) ||
-    !Number.isFinite(ownership) || ownership < 0 || ownership > 100 ||
     !Number.isFinite(averageTransaction) || averageTransaction <= 0 ||
     !established ||
     value(formData, "consent") !== "yes"
@@ -248,9 +283,9 @@ async function handleRegistration(request, env, ctx) {
   }
 
   const businessDocument = formData.get("business_document");
-  const identityDocument = formData.get("identity_document");
   const voidCheque = formData.get("void_cheque");
-  const files = [businessDocument, identityDocument, voidCheque];
+  const ownerIdentityDocuments = owners.map((owner, index) => formData.get(`owner_${index}_identity_document`));
+  const files = [businessDocument, voidCheque, ...ownerIdentityDocuments];
   if (!files.every(isAllowedFile) || files.reduce((total, file) => total + file.size, 0) > MAX_TOTAL_FILE_SIZE) {
     return json({ success: false, message: "Documents must be PDF, PNG, or JPG files within the size limits." }, 400);
   }
@@ -260,8 +295,12 @@ async function handleRegistration(request, env, ctx) {
   const reference = `YP-${date}-${randomString(3).toUpperCase()}`;
   const documents = await Promise.all([
     fileRecord(businessDocument, "business_document", "Business registration"),
-    fileRecord(identityDocument, "identity_document", "Government-issued ID"),
     fileRecord(voidCheque, "void_cheque", "Void cheque / bank letter"),
+    ...ownerIdentityDocuments.map((file, index) => fileRecord(
+      file,
+      `owner_${index}_identity_document`,
+      `Owner ${index + 1} — ${owners[index].name} — Government-issued ID`,
+    )),
   ]);
 
   try {
@@ -278,8 +317,10 @@ async function handleRegistration(request, env, ctx) {
   const safeName = escapeHtml(data.legal_name);
   const safePrincipal = escapeHtml(data.principal_name);
   const safeEmail = escapeHtml(data.principal_email);
-  ctx.waitUntil(
-    env.EMAIL.send({
+  let notificationSent = false;
+  let notificationError = "";
+  try {
+    await env.EMAIL.send({
       to: RECIPIENT,
       from: { email: SENDER, name: "YolkPay Merchant Registration" },
       replyTo: { email: data.principal_email, name: data.principal_name },
@@ -290,6 +331,7 @@ async function handleRegistration(request, env, ctx) {
         `Principal: ${data.principal_name}`,
         `Email: ${data.principal_email}`,
         `Country: ${data.country}`,
+        `Owners / controlling persons: ${owners.length}`,
         "",
         "Sign in to the YolkPay application admin to review the full application and private documents.",
       ].join("\n"),
@@ -298,13 +340,29 @@ async function handleRegistration(request, env, ctx) {
         <p><strong>Business:</strong> ${safeName}</p>
         <p><strong>Principal:</strong> ${safePrincipal}</p>
         <p><strong>Email:</strong> ${safeEmail}</p>
+        <p><strong>Owners / controlling persons:</strong> ${owners.length}</p>
         <p>Sign in to the YolkPay application admin to review the full application and private documents.</p>`,
-    }).catch((error) => {
-      console.error(JSON.stringify({ event: "registration_email_failed", reference, message: error instanceof Error ? error.message : String(error) }));
-    }),
-  );
+    });
+    notificationSent = true;
+  } catch (error) {
+    notificationError = error instanceof Error ? error.message : String(error);
+    console.error(JSON.stringify({ event: "registration_email_failed", reference, message: notificationError }));
+  }
+  try {
+    await adminStore(env).updateNotification(
+      reference,
+      notificationSent ? "sent" : "failed",
+      notificationError.slice(0, 500),
+    );
+  } catch (error) {
+    console.error(JSON.stringify({
+      event: "registration_notification_status_failed",
+      reference,
+      message: error instanceof Error ? error.message : String(error),
+    }));
+  }
 
-  return json({ success: true, reference });
+  return json({ success: true, reference, notification_sent: notificationSent });
 }
 
 async function requireSession(request, env) {
@@ -434,7 +492,10 @@ export class RegistrationStore extends DurableObject {
         principal_email TEXT NOT NULL,
         ownership_percent TEXT NOT NULL,
         principal_title TEXT NOT NULL,
-        bank_type TEXT NOT NULL
+        bank_type TEXT NOT NULL,
+        owners_json TEXT NOT NULL DEFAULT '[]',
+        notification_status TEXT NOT NULL DEFAULT 'pending',
+        notification_error TEXT NOT NULL DEFAULT ''
       );
       CREATE INDEX IF NOT EXISTS idx_applications_created ON applications(created_at DESC);
       CREATE INDEX IF NOT EXISTS idx_applications_status ON applications(status);
@@ -468,6 +529,16 @@ export class RegistrationStore extends DurableObject {
         expires_at INTEGER NOT NULL
       );
     `);
+    const applicationColumns = new Set([...this.sql.exec("PRAGMA table_info(applications)")].map((column) => column.name));
+    if (!applicationColumns.has("owners_json")) {
+      this.sql.exec("ALTER TABLE applications ADD COLUMN owners_json TEXT NOT NULL DEFAULT '[]'");
+    }
+    if (!applicationColumns.has("notification_status")) {
+      this.sql.exec("ALTER TABLE applications ADD COLUMN notification_status TEXT NOT NULL DEFAULT 'pending'");
+    }
+    if (!applicationColumns.has("notification_error")) {
+      this.sql.exec("ALTER TABLE applications ADD COLUMN notification_error TEXT NOT NULL DEFAULT ''");
+    }
   }
 
   async createApplication(application, documents) {
@@ -476,7 +547,7 @@ export class RegistrationStore extends DurableObject {
       "license_number", "business_address", "business_phone", "business_email", "website",
       "established_date", "annual_volume", "average_transaction", "business_description",
       "principal_name", "principal_phone", "principal_email", "ownership_percent",
-      "principal_title", "bank_type",
+      "principal_title", "bank_type", "owners_json", "notification_status", "notification_error",
     ];
     const values = [
       application.id, application.created_at, application.created_at, "new", application.country,
@@ -485,7 +556,7 @@ export class RegistrationStore extends DurableObject {
       application.website, application.established_date, application.annual_volume,
       application.average_transaction, application.business_description, application.principal_name,
       application.principal_phone, application.principal_email, application.ownership_percent,
-      application.principal_title, application.bank_type,
+      application.principal_title, application.bank_type, application.owners_json, "pending", "",
     ];
 
     this.ctx.storage.transactionSync(() => {
@@ -593,6 +664,14 @@ export class RegistrationStore extends DurableObject {
     return true;
   }
 
+  updateNotification(id, status, error) {
+    this.sql.exec(
+      "UPDATE applications SET notification_status = ?, notification_error = ?, updated_at = ? WHERE id = ?",
+      status, error, new Date().toISOString(), id,
+    );
+    return true;
+  }
+
   getDocument(id) {
     const document = [...this.sql.exec(
       "SELECT id, filename, content_type, size, chunk_count FROM documents WHERE id = ?",
@@ -625,7 +704,7 @@ export default {
     }
     if (pathname === "/api/registration") {
       if (request.method !== "POST") return json({ success: false, message: "Method not allowed." }, 405);
-      return handleRegistration(request, env, ctx);
+      return handleRegistration(request, env);
     }
     if (pathname === "/api/admin/request-code") {
       if (request.method !== "POST") return json({ success: false, message: "Method not allowed." }, 405);
