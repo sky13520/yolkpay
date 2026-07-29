@@ -7,13 +7,14 @@
     <section class="page-hero"><div class="container"><div class="eyebrow">Contact YolkPay</div><h1>Let’s talk about your next <span>payment.</span></h1><p>Questions about merchant services, platform payments, partnerships, or support? Send us a note.</p></div></section>
     <section class="section"><div class="container form-shell">
       <aside><div class="kicker">Reach us</div><h2>We’re here to help.</h2><div class="contact-list"><a class="contact-item" href="mailto:info@yolkpay.com"><strong>General and sales</strong><small>info@yolkpay.com</small></a><div class="contact-item"><strong>Location</strong><small>21-401 Alden Rd, Markham, ON, Canada</small></div><div class="contact-item"><strong>Merchant applications</strong><small><a class="accent" href="registration.html">Start an application →</a></small></div></div></aside>
-      <form class="form-card" action="mailto:info@yolkpay.com" method="post" enctype="text/plain" data-mail-form data-subject="YolkPay website contact">
+      <form class="form-card" action="/api/contact" method="post" data-mail-form>
+        <input type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
         <div class="field-grid">
-          <div class="field"><label for="name">Name *</label><input type="text" id="name" name="Name" required></div>
-          <div class="field"><label for="company">Company *</label><input type="text" id="company" name="Company" required></div>
-          <div class="field"><label for="email">Email *</label><input id="email" name="Email" type="email" required></div>
-          <div class="field"><label for="topic">Topic *</label><select id="topic" name="Topic" required><option value="">Select one</option><option>Merchant services</option><option>Platform payments</option><option>Partnership</option><option>Existing merchant support</option><option>Other</option></select></div>
-          <div class="field full"><label for="message">Message *</label><textarea id="message" name="Message" required></textarea></div>
+          <div class="field"><label for="name">Name *</label><input type="text" id="name" name="name" autocomplete="name" maxlength="100" required></div>
+          <div class="field"><label for="company">Company *</label><input type="text" id="company" name="company" autocomplete="organization" maxlength="150" required></div>
+          <div class="field"><label for="email">Email *</label><input id="email" name="email" type="email" autocomplete="email" maxlength="254" required></div>
+          <div class="field"><label for="topic">Topic *</label><select id="topic" name="topic" required><option value="">Select one</option><option>Merchant services</option><option>Platform payments</option><option>Partnership</option><option>Existing merchant support</option><option>Other</option></select></div>
+          <div class="field full"><label for="message">Message *</label><textarea id="message" name="message" maxlength="5000" required></textarea></div>
         </div>
         <button class="button green" type="submit">Send message</button><div class="form-status" role="status"></div>
       </form>
