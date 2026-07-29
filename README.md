@@ -33,4 +33,4 @@ Connect the GitHub repository to Cloudflare Pages and deploy the `main` branch.
 
 ## Forms
 
-The current static contact form still opens the visitor's email app. Production delivery must use the site's own Cloudflare email endpoint so customer form data is not disclosed to an unapproved third-party form service.
+The contact form posts to the site's own `/api/contact` Worker endpoint. Cloudflare Email Service sends every inquiry to `info@yolkpay.com`; the visitor's address is used only as Reply-To.
