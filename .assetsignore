@@ -1,0 +1,8 @@
+.git
+.github
+.assetsignore
+node_modules
+worker.js
+wrangler.jsonc
+README.md
+cf-validate.*
