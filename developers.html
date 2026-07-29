@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Learn how YolkPay supports payment integrations, merchant onboarding, reporting, and event-driven workflows.">
+  <title>Developers — YolkPay</title>
+  <link rel="icon" href="assets/icon.svg">
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header"><div class="container nav"><a class="brand" href="index.html" aria-label="YolkPay home"><img src="assets/logo.svg" alt="YolkPay"></a><button class="menu-toggle" type="button" aria-expanded="false" aria-label="Open navigation"><span></span><span></span><span></span></button><nav class="nav-links" aria-label="Main navigation"><a href="products.html">Products</a><a aria-current="page" href="developers.html">Developers</a><a href="pricing.html">Pricing</a><a href="about.html">Company</a><a href="contact.html">Contact</a><a class="button small" href="apply.html">Apply now</a></nav></div></header>
+  <main id="main">
+    <section class="page-hero"><div class="container"><div class="eyebrow">For developers</div><h1>Build payments into your <span>product.</span></h1><p>Connect checkout, onboarding, reporting, and payment events with an integration path shaped around your platform.</p><div class="actions center-actions"><a class="button green" href="contact.html">Discuss an integration</a><a class="button ghost" href="#capabilities">Explore capabilities</a></div></div></section>
+    <section class="section dark"><div class="container split-panel"><div><div class="kicker">Integration overview</div><h2>Start with the customer journey.</h2><p class="lead muted">YolkPay works with software teams to map the right payment flow before implementation—from a simple hosted checkout to a broader platform integration.</p><ul class="bullets"><li>Hosted and integrated checkout options</li><li>Merchant boarding workflows</li><li>Transaction and settlement reporting</li><li>Payment and account event notifications</li></ul><p class="notice">API access, documentation, environments, and specific capabilities are provided according to the approved integration and payment partner.</p></div><div class="code-window"><div class="code-bar"><span></span><span></span><span></span></div><pre><span class="code-key">POST</span> /payments
+{
+  "amount": <span class="code-value">4820</span>,
+  "currency": <span class="code-value">"CAD"</span>,
+  "reference": <span class="code-value">"ORDER-1048"</span>,
+  "channel": <span class="code-value">"online"</span>
+}
+
+<span class="code-key">200</span> payment.authorized</pre></div></div></section>
+    <section class="section" id="capabilities"><div class="container"><div class="section-heading"><div class="kicker">Core capabilities</div><h2>Tools for the payment lifecycle.</h2><p>Availability varies by program and processor. We confirm the supported path during solution design.</p></div><div class="grid-3"><article class="feature-card"><div class="icon">01</div><h3>Checkout</h3><p>Create a secure payment experience for web, mobile, ordering, booking, and subscription journeys.</p></article><article class="feature-card"><div class="icon">02</div><h3>Merchant onboarding</h3><p>Guide eligible businesses through data collection, review, and account setup workflows.</p></article><article class="feature-card"><div class="icon">03</div><h3>Reporting</h3><p>Bring authorized, settled, rejected, and deposit-related information into operational views.</p></article><article class="feature-card"><div class="icon">04</div><h3>Events</h3><p>Use notifications to keep payment, merchant, and terminal status in sync with your application.</p></article><article class="feature-card"><div class="icon">05</div><h3>Account servicing</h3><p>Design supported self-service and back-office workflows around merchant account information.</p></article><article class="feature-card"><div class="icon">06</div><h3>Partner guidance</h3><p>Work through architecture, testing, launch readiness, and operating responsibilities with our team.</p></article></div></div></section>
+    <section class="section green-wash"><div class="container"><div class="section-heading center"><div class="kicker">How we integrate</div><h2>A clearer path from idea to launch.</h2></div><div class="steps"><article class="step"><div class="step-number">1</div><h3>Define the flow</h3><p>Map users, merchants, payment channels, funds movement, and reporting needs.</p></article><article class="step"><div class="step-number">2</div><h3>Confirm capabilities</h3><p>Align the solution with supported processor features, compliance, and commercial approval.</p></article><article class="step"><div class="step-number">3</div><h3>Build and validate</h3><p>Implement, test key scenarios, complete launch checks, and prepare ongoing support.</p></article></div></div></section>
+    <section class="cta"><div class="container"><div class="cta-box"><h2>Tell us what you want to build.</h2><p>Share your product, markets, merchant model, transaction flow, and target launch date.</p><div class="actions"><a class="button" href="contact.html">Contact platform sales</a><a class="button ghost" href="products.html#platforms">Platform payments</a></div></div></div></section>
+  </main>
+  <footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-brand"><img src="assets/logo.svg" alt="YolkPay"><p>Clear payment experiences for ambitious Canadian businesses and platforms.</p></div><div class="footer-col"><strong>Products</strong><a href="in-store.html">In-store</a><a href="online.html">Online</a><a href="products.html#platforms">Platforms</a></div><div class="footer-col"><strong>Resources</strong><a href="developers.html">Developers</a><a href="blog.html">Insights</a><a href="pricing.html">Pricing</a></div><div class="footer-col"><strong>Company</strong><a href="about.html">About</a><a href="contact.html">Contact</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a></div></div><div class="footer-bottom"><span>© <span data-year></span> YolkPay Inc. All rights reserved.</span><span>Services are subject to underwriting, approval, and availability.</span></div></div></footer>
+</body>
+</html>
