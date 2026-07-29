@@ -477,6 +477,19 @@ textarea { min-height: 130px; resize: vertical; }
 .security-note { padding: 18px 20px; border-left: 4px solid var(--green); border-radius: 0 13px 13px 0; background: #eefbf4; }
 .security-note.yolk { border-color: var(--yolk); background: var(--yolk-soft); }
 .security-note p { margin: 4px 0 0; color: #52625a; font-size: 13px; }
+.owners-list { display: grid; gap: 18px; }
+.owner-card { padding: 22px; border: 1px solid var(--line); border-radius: 18px; background: #fbfbf8; }
+.owner-card-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+.owner-card-heading span, .owner-card-heading small { display: block; }
+.owner-card-heading span { font-size: 16px; font-weight: 900; }
+.owner-card-heading small { margin-top: 2px; color: var(--muted); font-size: 12px; }
+.remove-owner-button { color: #a63f36; }
+.add-owner-button { width: 100%; margin-top: 16px; border-style: dashed; }
+.owner-security-note { margin-top: 18px; }
+.owner-security-note + .security-note { margin-top: 12px; }
+.owner-review-heading { border-top: 3px solid var(--yolk); }
+.submission-notification { max-width: 620px; margin: 10px auto 0; color: #316648; }
+.submission-notification.warning { color: #8a5b00; }
 .form-actions { display: flex; justify-content: space-between; gap: 12px; margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--line); }
 .form-actions .button { gap: 10px; }
 .honey-field { position: absolute !important; left: -9999px !important; }
@@ -563,6 +576,7 @@ textarea { min-height: 130px; resize: vertical; }
   .application-hero h1 { font-size: 43px; }
   .application-section { padding: 25px 0 60px; }
   .application-panel, .application-success { padding: 25px 20px; border-radius: 20px; }
+  .owner-card { padding: 18px 15px; }
   .panel-heading h2 { font-size: 31px; }
   .choice-row, .review-grid { grid-template-columns: 1fr; }
   .review-item.full { grid-column: auto; }
