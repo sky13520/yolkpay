@@ -7,10 +7,11 @@
 /contact-us/ /contact.html 301
 /privacy-policy/ /privacy.html 301
 /terms-of-use/ /terms.html 301
-/registration/ /apply.html 301
+/registration/ /registration.html 301
 /downloads/ /downloads.html 301
 /Installation/ /installation.html 301
 /installation/ /installation.html 301
-/registration.html /apply.html 301
+/apply /registration.html 301
+/apply.html /registration.html 301
 /merchants/ /merchants.html 301
 /documentation/ /documentation.html 301
