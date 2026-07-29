@@ -2,10 +2,19 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://yolkpay.com/</loc></url>
   <url><loc>https://yolkpay.com/products.html</loc></url>
+  <url><loc>https://yolkpay.com/online.html</loc></url>
+  <url><loc>https://yolkpay.com/in-store.html</loc></url>
+  <url><loc>https://yolkpay.com/developers.html</loc></url>
+  <url><loc>https://yolkpay.com/documentation.html</loc></url>
+  <url><loc>https://yolkpay.com/downloads.html</loc></url>
+  <url><loc>https://yolkpay.com/installation.html</loc></url>
+  <url><loc>https://yolkpay.com/merchants.html</loc></url>
   <url><loc>https://yolkpay.com/pricing.html</loc></url>
-  <url><loc>https://yolkpay.com/apply.html</loc></url>
+  <url><loc>https://yolkpay.com/registration.html</loc></url>
   <url><loc>https://yolkpay.com/about.html</loc></url>
   <url><loc>https://yolkpay.com/contact.html</loc></url>
+  <url><loc>https://yolkpay.com/blog.html</loc></url>
+  <url><loc>https://yolkpay.com/welcome-to-yolkpay.html</loc></url>
   <url><loc>https://yolkpay.com/privacy.html</loc></url>
   <url><loc>https://yolkpay.com/terms.html</loc></url>
 </urlset>
