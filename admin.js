@@ -124,6 +124,7 @@ if (loginView && dashboard) {
         contact.appendChild(email);
         row.appendChild(contact);
         addCell(row, application.country);
+        addCell(row, application.agent_slug || application.agent_id || 'Direct');
         const statusCell = document.createElement('td');
         const pill = document.createElement('span');
         pill.className = `status-pill status-${application.status}`;
@@ -217,6 +218,7 @@ if (loginView && dashboard) {
 
       const owners = applicationOwners(app);
       const groups = [
+        ['Agent referral', [['Agent ID', app.agent_id || 'Direct YolkPay registration'], ['Agent slug', app.agent_slug || '—']]],
         ['Business', [['Country', app.country], ['Business type', app.business_type], ['Registration / licence', app.license_number], ['Address', app.business_address], ['Phone', app.business_phone], ['Email', app.business_email], ['Website', app.website], ['Established', app.established_date], ['Annual volume', app.annual_volume], ['Average transaction', app.average_transaction], ['Business activity', app.business_description]]],
         ...owners.map((owner, index) => [
           `Owner / controlling person ${index + 1}`,
