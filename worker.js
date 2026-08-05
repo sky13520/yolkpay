@@ -111,7 +111,9 @@ function fieldLimits(data) {
     data.principal_email.length <= 254 &&
     data.ownership_percent.length <= 10 &&
     data.principal_title.length <= 100 &&
-    data.bank_type.length <= 30
+    data.bank_type.length <= 30 &&
+    data.agent_id.length <= 100 &&
+    data.agent_slug.length <= 100
   );
 }
 
@@ -250,6 +252,8 @@ async function handleRegistration(request, env) {
     average_transaction: value(formData, "average_transaction"),
     business_description: value(formData, "business_description"),
     bank_type: value(formData, "bank_type"),
+    agent_id: value(formData, "agent_id"),
+    agent_slug: value(formData, "agent_slug"),
   };
   const owners = parseOwners(formData);
   const primaryOwner = owners?.[0];
@@ -317,6 +321,14 @@ async function handleRegistration(request, env) {
   const safeName = escapeHtml(data.legal_name);
   const safePrincipal = escapeHtml(data.principal_name);
   const safeEmail = escapeHtml(data.principal_email);
+  const safeAgentId = escapeHtml(data.agent_id);
+  const safeAgentSlug = escapeHtml(data.agent_slug);
+  const agentText = data.agent_id
+    ? `Agent ID: ${data.agent_id}${data.agent_slug ? ` (${data.agent_slug})` : ""}`
+    : "Agent ID: Direct YolkPay registration";
+  const agentHtml = data.agent_id
+    ? `<p><strong>Agent ID:</strong> ${safeAgentId}${safeAgentSlug ? ` (${safeAgentSlug})` : ""}</p>`
+    : "<p><strong>Agent ID:</strong> Direct YolkPay registration</p>";
   let notificationSent = false;
   let notificationError = "";
   try {
@@ -331,6 +343,7 @@ async function handleRegistration(request, env) {
         `Principal: ${data.principal_name}`,
         `Email: ${data.principal_email}`,
         `Country: ${data.country}`,
+        agentText,
         `Owners / controlling persons: ${owners.length}`,
         "",
         "Sign in to the YolkPay application admin to review the full application and private documents.",
@@ -340,6 +353,7 @@ async function handleRegistration(request, env) {
         <p><strong>Business:</strong> ${safeName}</p>
         <p><strong>Principal:</strong> ${safePrincipal}</p>
         <p><strong>Email:</strong> ${safeEmail}</p>
+        ${agentHtml}
         <p><strong>Owners / controlling persons:</strong> ${owners.length}</p>
         <p>Sign in to the YolkPay application admin to review the full application and private documents.</p>`,
     });
@@ -493,6 +507,8 @@ export class RegistrationStore extends DurableObject {
         ownership_percent TEXT NOT NULL,
         principal_title TEXT NOT NULL,
         bank_type TEXT NOT NULL,
+        agent_id TEXT NOT NULL DEFAULT '',
+        agent_slug TEXT NOT NULL DEFAULT '',
         owners_json TEXT NOT NULL DEFAULT '[]',
         notification_status TEXT NOT NULL DEFAULT 'pending',
         notification_error TEXT NOT NULL DEFAULT ''
@@ -530,6 +546,12 @@ export class RegistrationStore extends DurableObject {
       );
     `);
     const applicationColumns = new Set([...this.sql.exec("PRAGMA table_info(applications)")].map((column) => column.name));
+    if (!applicationColumns.has("agent_id")) {
+      this.sql.exec("ALTER TABLE applications ADD COLUMN agent_id TEXT NOT NULL DEFAULT ''");
+    }
+    if (!applicationColumns.has("agent_slug")) {
+      this.sql.exec("ALTER TABLE applications ADD COLUMN agent_slug TEXT NOT NULL DEFAULT ''");
+    }
     if (!applicationColumns.has("owners_json")) {
       this.sql.exec("ALTER TABLE applications ADD COLUMN owners_json TEXT NOT NULL DEFAULT '[]'");
     }
@@ -547,7 +569,7 @@ export class RegistrationStore extends DurableObject {
       "license_number", "business_address", "business_phone", "business_email", "website",
       "established_date", "annual_volume", "average_transaction", "business_description",
       "principal_name", "principal_phone", "principal_email", "ownership_percent",
-      "principal_title", "bank_type", "owners_json", "notification_status", "notification_error",
+      "principal_title", "bank_type", "agent_id", "agent_slug", "owners_json", "notification_status", "notification_error",
     ];
     const values = [
       application.id, application.created_at, application.created_at, "new", application.country,
@@ -556,7 +578,8 @@ export class RegistrationStore extends DurableObject {
       application.website, application.established_date, application.annual_volume,
       application.average_transaction, application.business_description, application.principal_name,
       application.principal_phone, application.principal_email, application.ownership_percent,
-      application.principal_title, application.bank_type, application.owners_json, "pending", "",
+      application.principal_title, application.bank_type, application.agent_id, application.agent_slug,
+      application.owners_json, "pending", "",
     ];
 
     this.ctx.storage.transactionSync(() => {
@@ -635,13 +658,13 @@ export class RegistrationStore extends DurableObject {
       params.push(status);
     }
     if (q) {
-      terms.push("(legal_name LIKE ? OR principal_name LIKE ? OR principal_email LIKE ? OR id LIKE ?)");
+      terms.push("(legal_name LIKE ? OR principal_name LIKE ? OR principal_email LIKE ? OR id LIKE ? OR agent_id LIKE ? OR agent_slug LIKE ?)");
       const pattern = `%${q}%`;
-      params.push(pattern, pattern, pattern, pattern);
+      params.push(pattern, pattern, pattern, pattern, pattern, pattern);
     }
     const where = terms.length ? `WHERE ${terms.join(" AND ")}` : "";
     const applications = [...this.sql.exec(
-      `SELECT id, created_at, updated_at, status, country, legal_name, principal_name, principal_email
+      `SELECT id, created_at, updated_at, status, country, legal_name, principal_name, principal_email, agent_id, agent_slug
        FROM applications ${where} ORDER BY created_at DESC LIMIT 100`,
       ...params,
     )];
