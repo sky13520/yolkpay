@@ -10,6 +10,13 @@ if (registrationForm) {
   const ownerTemplate = registrationForm.querySelector('[data-owner-template]');
   const ownerCount = registrationForm.querySelector('[data-owner-count]');
   const addOwnerButton = registrationForm.querySelector('[data-add-owner]');
+  const referral = new URLSearchParams(window.location.search);
+  const agentId = (referral.get('agent_id') || '').trim();
+  const agentSlug = (referral.get('agent_slug') || '').trim();
+  const safeAgentId = /^[A-Za-z0-9:_-]{1,100}$/.test(agentId) ? agentId : '';
+  const safeAgentSlug = /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(agentSlug) ? agentSlug : '';
+  registrationForm.elements.namedItem('agent_id').value = safeAgentId;
+  registrationForm.elements.namedItem('agent_slug').value = safeAgentSlug;
   let currentStep = 1;
 
   const labels = {
