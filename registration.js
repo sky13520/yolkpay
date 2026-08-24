@@ -10,11 +10,15 @@ if (registrationForm) {
   const ownerTemplate = registrationForm.querySelector('[data-owner-template]');
   const ownerCount = registrationForm.querySelector('[data-owner-count]');
   const addOwnerButton = registrationForm.querySelector('[data-add-owner]');
+  const ownershipStatus = registrationForm.querySelector('[data-ownership-status]');
   const referral = new URLSearchParams(window.location.search);
+  const partner = (referral.get('partner') || '').trim();
   const agentId = (referral.get('agent_id') || '').trim();
   const agentSlug = (referral.get('agent_slug') || '').trim();
+  const safePartner = /^[A-Za-z0-9:_-]{1,100}$/.test(partner) ? partner : '';
   const safeAgentId = /^[A-Za-z0-9:_-]{1,100}$/.test(agentId) ? agentId : '';
   const safeAgentSlug = /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(agentSlug) ? agentSlug : '';
+  registrationForm.elements.namedItem('partner').value = safePartner || safeAgentSlug || safeAgentId;
   registrationForm.elements.namedItem('agent_id').value = safeAgentId;
   registrationForm.elements.namedItem('agent_slug').value = safeAgentSlug;
   let currentStep = 1;
@@ -41,6 +45,36 @@ if (registrationForm) {
     return [...ownersList.querySelectorAll('[data-owner-card]')];
   }
 
+  function ownershipTotal() {
+    return ownerCards().reduce((total, card) => {
+      const field = card.querySelector('[data-owner-field="ownership_percent"]');
+      const value = Number(field?.value || 0);
+      return total + (Number.isFinite(value) ? Math.round(value * 100) : 0);
+    }, 0);
+  }
+
+  function updateOwnershipState() {
+    const total = ownershipTotal();
+    const remaining = 10000 - total;
+    const complete = remaining === 0;
+    const over = remaining < 0;
+    addOwnerButton.hidden = complete || over;
+    addOwnerButton.disabled = complete || over || ownerCards().length >= 10;
+    ownershipStatus.classList.toggle('error', over);
+    const heading = ownershipStatus.querySelector('strong');
+    const message = ownershipStatus.querySelector('p');
+    if (complete) {
+      heading.textContent = 'Ownership complete — 100%';
+      message.textContent = 'No additional owner is required.';
+    } else if (over) {
+      heading.textContent = `Ownership exceeds 100% by ${Math.abs(remaining / 100).toFixed(2)}%`;
+      message.textContent = 'Reduce one or more ownership percentages before continuing.';
+    } else {
+      heading.textContent = `${(remaining / 100).toFixed(2)}% ownership remaining`;
+      message.textContent = 'Add another owner and continue until the combined ownership equals exactly 100%.';
+    }
+  }
+
   function updateOwners() {
     const cards = ownerCards();
     ownerCount.value = String(cards.length);
@@ -55,7 +89,7 @@ if (registrationForm) {
         card.querySelector(`[data-label="${key}"]`)?.setAttribute('for', id);
       });
     });
-    addOwnerButton.disabled = cards.length >= 10;
+    updateOwnershipState();
   }
 
   function addOwner() {
@@ -67,10 +101,12 @@ if (registrationForm) {
 
   function validateOwnership() {
     const fields = ownerCards().map((card) => card.querySelector('[data-owner-field="ownership_percent"]'));
-    const total = fields.reduce((sum, field) => sum + Number(field.value || 0), 0);
-    if (total > 100.00001) {
+    const total = ownershipTotal();
+    if (total !== 10000) {
       const last = fields[fields.length - 1];
-      last.setCustomValidity('The combined ownership percentage cannot exceed 100%.');
+      last.setCustomValidity(total > 10000
+        ? 'The combined ownership percentage cannot exceed 100%.'
+        : 'Add every owner until the combined ownership percentage equals exactly 100%.');
       last.reportValidity();
       last.setCustomValidity('');
       return false;
@@ -174,6 +210,9 @@ if (registrationForm) {
     remove.closest('[data-owner-card]').remove();
     updateOwners();
   });
+  ownersList.addEventListener('input', (event) => {
+    if (event.target.matches('[data-owner-field="ownership_percent"]')) updateOwnershipState();
+  });
 
   registrationForm.querySelectorAll('[data-next]').forEach((button) => {
     button.addEventListener('click', () => {
@@ -197,7 +236,7 @@ if (registrationForm) {
 
   registrationForm.addEventListener('submit', async (event) => {
     event.preventDefault();
-    if (!registrationForm.reportValidity()) return;
+    if (!registrationForm.reportValidity() || !validateOwnership()) return;
 
     const files = [...registrationForm.querySelectorAll('input[type="file"]')].map((input) => input.files[0]).filter(Boolean);
     const totalSize = files.reduce((sum, file) => sum + file.size, 0);

@@ -47,6 +47,7 @@
         </aside>
 
         <form class="merchant-application" action="/api/registration" method="post" enctype="multipart/form-data" data-registration-form novalidate>
+          <input type="hidden" name="partner" value="">
           <input type="hidden" name="agent_id" value="">
           <input type="hidden" name="agent_slug" value="">
           <section class="application-panel active" data-form-step="1">
@@ -83,7 +84,7 @@
             <input type="hidden" name="owner_count" value="1" data-owner-count>
             <div class="owners-list" data-owners-list></div>
             <button class="button ghost add-owner-button" type="button" data-add-owner><span aria-hidden="true">＋</span> Add another owner</button>
-            <div class="security-note owner-security-note"><strong>Separate supporting material for each person</strong><p>Each owner or controlling person must have their own name, ownership percentage, contact details, position, and government-issued identity document. The combined ownership percentage cannot exceed 100%.</p></div>
+            <div class="security-note owner-security-note" data-ownership-status aria-live="polite"><strong>100% ownership required</strong><p>Enter every owner until the combined ownership percentage equals exactly 100%.</p></div>
             <div class="security-note"><strong>No password requested</strong><p>YolkPay will send a secure account activation link after approval. Never enter a portal password in an application form.</p></div>
             <div class="form-actions"><button class="button ghost" type="button" data-back>← Back</button><button class="button green" type="button" data-next>Continue <span aria-hidden="true">→</span></button></div>
           </section>
@@ -136,7 +137,7 @@
                 <div class="field"><label data-label="email">Email *</label><input data-owner-field="email" type="email" maxlength="254" autocomplete="email" required></div>
                 <div class="field">
                   <label data-label="ownership_percent">Ownership percentage *</label>
-                  <div class="input-suffix"><input data-owner-field="ownership_percent" type="number" min="0" max="100" step="0.01" required><span>%</span></div>
+                  <div class="input-suffix"><input data-owner-field="ownership_percent" type="number" min="0.01" max="100" step="0.01" required><span>%</span></div>
                 </div>
                 <div class="field"><label data-label="title">Title / position *</label><input data-owner-field="title" type="text" maxlength="100" placeholder="e.g. President" required></div>
                 <div class="field full">

@@ -10,6 +10,7 @@ const FILE_CHUNK_SIZE = 1_500_000;
 const ALLOWED_ORIGINS = new Set([
   "https://yolkpay.com",
   "https://www.yolkpay.com",
+  "https://new.yolkpay.com",
   "https://yolkpay.condoqin.workers.dev",
   "http://localhost:8787",
   "http://127.0.0.1:8787",
@@ -49,9 +50,14 @@ function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+function isValidPartnerReference(partner) {
+  return !partner || /^[A-Za-z0-9:_-]{1,100}$/.test(partner);
+}
+
 function isValidOrigin(request) {
   const origin = request.headers.get("Origin");
-  return Boolean(origin && ALLOWED_ORIGINS.has(origin));
+  if (!origin) return false;
+  return origin === new URL(request.url).origin || ALLOWED_ORIGINS.has(origin);
 }
 
 function isAllowedFile(file) {
@@ -112,6 +118,7 @@ function fieldLimits(data) {
     data.ownership_percent.length <= 10 &&
     data.principal_title.length <= 100 &&
     data.bank_type.length <= 30 &&
+    data.partner.length <= 100 &&
     data.agent_id.length <= 100 &&
     data.agent_slug.length <= 100
   );
@@ -136,7 +143,7 @@ function parseOwners(formData) {
       !owner.phone || owner.phone.length > 40 ||
       !owner.email || owner.email.length > 254 || !isValidEmail(owner.email) ||
       !owner.title || owner.title.length > 100 ||
-      !Number.isFinite(ownership) || ownership < 0 || ownership > 100
+      !Number.isFinite(ownership) || ownership <= 0 || ownership > 100
     ) {
       return null;
     }
@@ -144,7 +151,7 @@ function parseOwners(formData) {
   }
 
   const totalOwnership = owners.reduce((total, owner) => total + Number(owner.ownership_percent), 0);
-  return totalOwnership <= 100.00001 ? owners : null;
+  return Math.abs(totalOwnership - 100) < 0.00001 ? owners : null;
 }
 
 async function handleContact(request, env) {
@@ -252,6 +259,7 @@ async function handleRegistration(request, env) {
     average_transaction: value(formData, "average_transaction"),
     business_description: value(formData, "business_description"),
     bank_type: value(formData, "bank_type"),
+    partner: value(formData, "partner"),
     agent_id: value(formData, "agent_id"),
     agent_slug: value(formData, "agent_slug"),
   };
@@ -279,6 +287,7 @@ async function handleRegistration(request, env) {
     !fieldLimits(data) ||
     !["Canada", "United States"].includes(data.country) ||
     !isValidEmail(data.business_email) ||
+    !isValidPartnerReference(data.partner) ||
     !Number.isFinite(averageTransaction) || averageTransaction <= 0 ||
     !established ||
     value(formData, "consent") !== "yes"
@@ -323,12 +332,19 @@ async function handleRegistration(request, env) {
   const safeEmail = escapeHtml(data.principal_email);
   const safeAgentId = escapeHtml(data.agent_id);
   const safeAgentSlug = escapeHtml(data.agent_slug);
-  const agentText = data.agent_id
-    ? `Agent ID: ${data.agent_id}${data.agent_slug ? ` (${data.agent_slug})` : ""}`
-    : "Agent ID: Direct YolkPay registration";
-  const agentHtml = data.agent_id
-    ? `<p><strong>Agent ID:</strong> ${safeAgentId}${safeAgentSlug ? ` (${safeAgentSlug})` : ""}</p>`
-    : "<p><strong>Agent ID:</strong> Direct YolkPay registration</p>";
+  const safePartner = escapeHtml(data.partner);
+  const partnerText = data.partner
+    ? `Partner: ${data.partner}`
+    : "Partner: Direct YolkPay registration";
+  const partnerHtml = data.partner
+    ? `<p><strong>Partner:</strong> ${safePartner}</p>`
+    : "<p><strong>Partner:</strong> Direct YolkPay registration</p>";
+  const legacyAgentText = data.agent_id
+    ? `Legacy Agent ID: ${data.agent_id}${data.agent_slug ? ` (${data.agent_slug})` : ""}`
+    : "";
+  const legacyAgentHtml = data.agent_id
+    ? `<p><strong>Legacy Agent ID:</strong> ${safeAgentId}${safeAgentSlug ? ` (${safeAgentSlug})` : ""}</p>`
+    : "";
   let notificationSent = false;
   let notificationError = "";
   try {
@@ -343,7 +359,8 @@ async function handleRegistration(request, env) {
         `Principal: ${data.principal_name}`,
         `Email: ${data.principal_email}`,
         `Country: ${data.country}`,
-        agentText,
+        partnerText,
+        legacyAgentText,
         `Owners / controlling persons: ${owners.length}`,
         "",
         "Sign in to the YolkPay application admin to review the full application and private documents.",
@@ -353,7 +370,8 @@ async function handleRegistration(request, env) {
         <p><strong>Business:</strong> ${safeName}</p>
         <p><strong>Principal:</strong> ${safePrincipal}</p>
         <p><strong>Email:</strong> ${safeEmail}</p>
-        ${agentHtml}
+        ${partnerHtml}
+        ${legacyAgentHtml}
         <p><strong>Owners / controlling persons:</strong> ${owners.length}</p>
         <p>Sign in to the YolkPay application admin to review the full application and private documents.</p>`,
     });
@@ -507,6 +525,7 @@ export class RegistrationStore extends DurableObject {
         ownership_percent TEXT NOT NULL,
         principal_title TEXT NOT NULL,
         bank_type TEXT NOT NULL,
+        partner TEXT NOT NULL DEFAULT '',
         agent_id TEXT NOT NULL DEFAULT '',
         agent_slug TEXT NOT NULL DEFAULT '',
         owners_json TEXT NOT NULL DEFAULT '[]',
@@ -549,6 +568,9 @@ export class RegistrationStore extends DurableObject {
     if (!applicationColumns.has("agent_id")) {
       this.sql.exec("ALTER TABLE applications ADD COLUMN agent_id TEXT NOT NULL DEFAULT ''");
     }
+    if (!applicationColumns.has("partner")) {
+      this.sql.exec("ALTER TABLE applications ADD COLUMN partner TEXT NOT NULL DEFAULT ''");
+    }
     if (!applicationColumns.has("agent_slug")) {
       this.sql.exec("ALTER TABLE applications ADD COLUMN agent_slug TEXT NOT NULL DEFAULT ''");
     }
@@ -569,7 +591,7 @@ export class RegistrationStore extends DurableObject {
       "license_number", "business_address", "business_phone", "business_email", "website",
       "established_date", "annual_volume", "average_transaction", "business_description",
       "principal_name", "principal_phone", "principal_email", "ownership_percent",
-      "principal_title", "bank_type", "agent_id", "agent_slug", "owners_json", "notification_status", "notification_error",
+      "principal_title", "bank_type", "partner", "agent_id", "agent_slug", "owners_json", "notification_status", "notification_error",
     ];
     const values = [
       application.id, application.created_at, application.created_at, "new", application.country,
@@ -578,7 +600,7 @@ export class RegistrationStore extends DurableObject {
       application.website, application.established_date, application.annual_volume,
       application.average_transaction, application.business_description, application.principal_name,
       application.principal_phone, application.principal_email, application.ownership_percent,
-      application.principal_title, application.bank_type, application.agent_id, application.agent_slug,
+      application.principal_title, application.bank_type, application.partner, application.agent_id, application.agent_slug,
       application.owners_json, "pending", "",
     ];
 
@@ -658,13 +680,13 @@ export class RegistrationStore extends DurableObject {
       params.push(status);
     }
     if (q) {
-      terms.push("(legal_name LIKE ? OR principal_name LIKE ? OR principal_email LIKE ? OR id LIKE ? OR agent_id LIKE ? OR agent_slug LIKE ?)");
+      terms.push("(legal_name LIKE ? OR principal_name LIKE ? OR principal_email LIKE ? OR id LIKE ? OR partner LIKE ? OR agent_id LIKE ? OR agent_slug LIKE ?)");
       const pattern = `%${q}%`;
-      params.push(pattern, pattern, pattern, pattern, pattern, pattern);
+      params.push(pattern, pattern, pattern, pattern, pattern, pattern, pattern);
     }
     const where = terms.length ? `WHERE ${terms.join(" AND ")}` : "";
     const applications = [...this.sql.exec(
-      `SELECT id, created_at, updated_at, status, country, legal_name, principal_name, principal_email, agent_id, agent_slug
+      `SELECT id, created_at, updated_at, status, country, legal_name, principal_name, principal_email, partner, agent_id, agent_slug
        FROM applications ${where} ORDER BY created_at DESC LIMIT 100`,
       ...params,
     )];
