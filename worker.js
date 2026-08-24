@@ -101,7 +101,7 @@ function adminStore(env) {
 
 async function syncPartnerApplication(data, reference) {
   const partnerSlug = data.partner.toLowerCase();
-  if (!/^[a-z0-9][a-z0-9-]{0,79}$/.test(partnerSlug)) {
+  if (partnerSlug && !/^[a-z0-9][a-z0-9-]{0,79}$/.test(partnerSlug)) {
     return { synced: false, skipped: true, error: "Partner reference is not a portal slug." };
   }
 
@@ -114,12 +114,15 @@ async function syncPartnerApplication(data, reference) {
 
   try {
     const response = await fetch(
-      `${PARTNER_PORTAL_ORIGIN}/api/public/partners/${encodeURIComponent(partnerSlug)}/applications`,
+      partnerSlug
+        ? `${PARTNER_PORTAL_ORIGIN}/api/public/partners/${encodeURIComponent(partnerSlug)}/applications`
+        : `${PARTNER_PORTAL_ORIGIN}/api/public/applications`,
       {
         method: "POST",
         headers: {
           "Accept": "application/json",
           "Content-Type": "application/json",
+          "Origin": "https://new.yolkpay.com",
         },
         body: JSON.stringify({
           businessName: data.legal_name,
@@ -376,9 +379,7 @@ async function handleRegistration(request, env) {
     return json({ success: false, message: "We could not save the application. Please try again." }, 500);
   }
 
-  const partnerSync = data.partner
-    ? await syncPartnerApplication(data, reference)
-    : { synced: false, skipped: true, error: "Direct YolkPay registration." };
+  const partnerSync = await syncPartnerApplication(data, reference);
   if (!partnerSync.synced && !partnerSync.skipped) {
     console.error(JSON.stringify({
       event: "partner_application_sync_failed",
