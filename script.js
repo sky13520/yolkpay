@@ -72,9 +72,12 @@ document.querySelectorAll('[data-year]').forEach((item) => {
 });
 
 const primaryNav=document.querySelector('.nav-links');
-if(primaryNav&&!primaryNav.querySelector('.nav-dropdown')){
- const menu=(label,items)=>{const w=document.createElement('div');w.className='nav-dropdown';const b=document.createElement('button');b.className='nav-trigger';b.type='button';b.setAttribute('aria-expanded','false');b.innerHTML=label+' <span aria-hidden="true">⌄</span>';const p=document.createElement('div');p.className='dropdown-panel';items.forEach(i=>{const a=document.createElement('a');a.href=i[1];a.textContent=i[0];if(i[2]){a.target='_blank';a.rel='noopener';a.textContent+=' ↗'}p.appendChild(a)});b.onclick=()=>{const o=w.classList.toggle('open');b.setAttribute('aria-expanded',String(o))};w.append(b,p);return w};
+if(primaryNav&&!([...primaryNav.querySelectorAll(':scope > a')].some(a=>a.textContent.trim()==='Merchants'))){
  const pricing=[...primaryNav.querySelectorAll(':scope > a')].find(a=>a.textContent.trim()==='Pricing');
- if(pricing)primaryNav.insertBefore(menu('Merchants',[['Registration','registration.html'],['U.S. Portal','https://portal.yolkpay.com/',1],['Canada Portal','https://portal.bookiy.com/',1]]),pricing);
+ const merchants=document.createElement('a');
+ merchants.href='merchants.html';
+ merchants.textContent='Merchants';
+ if(window.location.pathname.endsWith('/merchants.html'))merchants.setAttribute('aria-current','page');
+ if(pricing)primaryNav.insertBefore(merchants,pricing);
 }
 document.querySelectorAll('.footer-brand').forEach(b=>{if(!b.querySelector('.footer-contact')){const c=document.createElement('div');c.className='footer-contact';c.innerHTML='<a href="mailto:info@yolkpay.com">info@yolkpay.com</a><span>21-401 Alden Rd, Markham, ON, Canada</span>';b.appendChild(c)}});
