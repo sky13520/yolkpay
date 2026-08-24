@@ -7,6 +7,7 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const MAX_TOTAL_FILE_SIZE = 25 * 1024 * 1024;
 const MAX_OWNERS = 10;
 const FILE_CHUNK_SIZE = 1_500_000;
+const PARTNER_PORTAL_ORIGIN = "https://partner.yolkpay.com";
 const ALLOWED_ORIGINS = new Set([
   "https://yolkpay.com",
   "https://www.yolkpay.com",
@@ -96,6 +97,54 @@ function cookieValue(request, name) {
 
 function adminStore(env) {
   return env.REGISTRATION_STORE.getByName("yolkpay-merchant-applications");
+}
+
+async function syncPartnerApplication(data, reference) {
+  const partnerSlug = data.partner.toLowerCase();
+  if (!/^[a-z0-9][a-z0-9-]{0,79}$/.test(partnerSlug)) {
+    return { synced: false, skipped: true, error: "Partner reference is not a portal slug." };
+  }
+
+  const message = [
+    `YolkPay application reference: ${reference}`,
+    `Country: ${data.country}`,
+    `Business description: ${data.business_description}`,
+    data.website ? `Website: ${data.website}` : "",
+  ].filter(Boolean).join("\n").slice(0, 1000);
+
+  try {
+    const response = await fetch(
+      `${PARTNER_PORTAL_ORIGIN}/api/public/partners/${encodeURIComponent(partnerSlug)}/applications`,
+      {
+        method: "POST",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          businessName: data.legal_name,
+          ownerName: data.principal_name,
+          email: data.business_email,
+          phone: data.business_phone,
+          category: data.business_type,
+          estimatedMonthlyVolume: `Annual ${data.annual_volume}`.slice(0, 80),
+          message,
+        }),
+      },
+    );
+    if (!response.ok) {
+      const body = await response.text().catch(() => "");
+      throw new Error(`Partner portal returned HTTP ${response.status}${body ? `: ${body.slice(0, 300)}` : ""}`);
+    }
+    const result = await response.json().catch(() => null);
+    return { synced: true, application_id: result?.application?.id || "" };
+  } catch (error) {
+    return {
+      synced: false,
+      skipped: false,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
 }
 
 function fieldLimits(data) {
@@ -327,6 +376,18 @@ async function handleRegistration(request, env) {
     return json({ success: false, message: "We could not save the application. Please try again." }, 500);
   }
 
+  const partnerSync = data.partner
+    ? await syncPartnerApplication(data, reference)
+    : { synced: false, skipped: true, error: "Direct YolkPay registration." };
+  if (!partnerSync.synced && !partnerSync.skipped) {
+    console.error(JSON.stringify({
+      event: "partner_application_sync_failed",
+      reference,
+      partner: data.partner,
+      message: partnerSync.error,
+    }));
+  }
+
   const safeName = escapeHtml(data.legal_name);
   const safePrincipal = escapeHtml(data.principal_name);
   const safeEmail = escapeHtml(data.principal_email);
@@ -394,7 +455,13 @@ async function handleRegistration(request, env) {
     }));
   }
 
-  return json({ success: true, reference, notification_sent: notificationSent });
+  return json({
+    success: true,
+    reference,
+    notification_sent: notificationSent,
+    partner_application_synced: partnerSync.synced,
+    partner_application_id: partnerSync.application_id || "",
+  });
 }
 
 async function requireSession(request, env) {

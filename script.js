@@ -77,7 +77,7 @@ if(primaryNav&&!([...primaryNav.querySelectorAll(':scope > a')].some(a=>a.textCo
  const merchants=document.createElement('a');
  merchants.href='merchants.html';
  merchants.textContent='Merchants';
- if(window.location.pathname.endsWith('/merchants.html'))merchants.setAttribute('aria-current','page');
+ if(/\/merchants(?:\.html)?\/?$/u.test(window.location.pathname))merchants.setAttribute('aria-current','page');
  if(pricing)primaryNav.insertBefore(merchants,pricing);
 }
 document.querySelectorAll('.footer-brand').forEach(b=>{if(!b.querySelector('.footer-contact')){const c=document.createElement('div');c.className='footer-contact';c.innerHTML='<a href="mailto:info@yolkpay.com">info@yolkpay.com</a><span>21-401 Alden Rd, Markham, ON, Canada</span>';b.appendChild(c)}});
