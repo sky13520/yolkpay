@@ -20,7 +20,7 @@ if (registrationForm) {
   const safeAgentSlug = /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(agentSlug) ? agentSlug : '';
   registrationForm.elements.namedItem('partner').value = safePartner || safeAgentSlug || safeAgentId;
   registrationForm.elements.namedItem('agent_id').value = safeAgentId;
-  registrationForm.elements.namedItem('agent_slug').value = safeAgentSlug;
+  registrationForm.elements.namedItem('agent_slug').value = safeAgentSlug || (/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(safePartner) ? safePartner : '');
   let currentStep = 1;
 
   const labels = {
