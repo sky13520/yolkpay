@@ -1,4 +1,4 @@
-import { DurableObject } from "cloudflare:workers";
+import { DurableObject, WorkerEntrypoint } from "cloudflare:workers";
 
 const RECIPIENT = "info@yolkpay.com";
 const SENDER = "info@yolkpay.com";
@@ -565,6 +565,18 @@ async function handleAdminApi(request, env, pathname, url) {
   return json({ success: false, message: "Not found." }, 404);
 }
 
+export class PartnerApplicationDocuments extends WorkerEntrypoint {
+  async getApplication(applicationId) {
+    if (!/^YP-[A-Z0-9-]+$/.test(applicationId)) return null;
+    return adminStore(this.env).getApplication(applicationId);
+  }
+
+  async getDocument(applicationId, documentId) {
+    if (!/^YP-[A-Z0-9-]+$/.test(applicationId) || !/^[a-f0-9-]+$/.test(documentId)) return null;
+    return adminStore(this.env).getApplicationDocument(applicationId, documentId);
+  }
+}
+
 export class RegistrationStore extends DurableObject {
   constructor(ctx, env) {
     super(ctx, env);
@@ -789,6 +801,27 @@ export class RegistrationStore extends DurableObject {
     const document = [...this.sql.exec(
       "SELECT id, filename, content_type, size, chunk_count FROM documents WHERE id = ?",
       id,
+    )][0];
+    if (!document) return null;
+    const chunks = [...this.sql.exec(
+      "SELECT data FROM document_chunks WHERE document_id = ? ORDER BY chunk_index",
+      id,
+    )];
+    const bytes = new Uint8Array(Number(document.size));
+    let offset = 0;
+    for (const row of chunks) {
+      const chunk = row.data instanceof Uint8Array ? row.data : new Uint8Array(row.data);
+      bytes.set(chunk, offset);
+      offset += chunk.length;
+    }
+    return { filename: document.filename, content_type: document.content_type, size: Number(document.size), bytes };
+  }
+
+  getApplicationDocument(applicationId, id) {
+    const document = [...this.sql.exec(
+      "SELECT id, filename, content_type, size, chunk_count FROM documents WHERE id = ? AND application_id = ?",
+      id,
+      applicationId,
     )][0];
     if (!document) return null;
     const chunks = [...this.sql.exec(

@@ -1,5 +1,6 @@
 .git
 .github
+.wrangler
 .assetsignore
 node_modules
 worker.js
