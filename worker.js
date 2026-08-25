@@ -360,7 +360,7 @@ async function handleRegistration(request, env) {
   const reference = `YP-${date}-${randomString(3).toUpperCase()}`;
   const documents = await Promise.all([
     fileRecord(businessDocument, "business_document", "Business registration"),
-    fileRecord(voidCheque, "void_cheque", "Void cheque / bank letter"),
+    fileRecord(voidCheque, "void_cheque", "Voided check / void cheque / bank letter"),
     ...ownerIdentityDocuments.map((file, index) => fileRecord(
       file,
       `owner_${index}_identity_document`,

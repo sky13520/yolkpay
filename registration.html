@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Apply for a YolkPay merchant payment account through our secure merchant registration form.">
-  <title>Merchant registration — YolkPay</title>
+  <meta name="description" content="Apply for a YolkPay merchant payment account in the U.S. or Canada through our secure registration form.">
+  <title>Merchant Application | U.S. &amp; Canada | YolkPay</title>
   <link rel="icon" href="assets/icon.png">
   <link rel="stylesheet" href="styles.css">
   <script src="script.js" defer></script>
@@ -42,7 +42,7 @@
           <div class="application-step" data-step-indicator="4"><span>4</span><div><strong>Review</strong><small>Confirm and submit</small></div></div>
           <div class="application-side-note">
             <strong>Before you begin</strong>
-            <p>Have your business registration, government-issued ID for every listed owner, and void cheque ready.</p>
+            <p>Have your business registration, government-issued ID for every listed owner, and a bank verification document ready.</p>
           </div>
         </aside>
 
@@ -56,19 +56,19 @@
               <div class="field full">
                 <label>Country *</label>
                 <div class="choice-row">
-                  <label class="choice-card"><input type="radio" name="country" value="Canada" required checked><span>🇨🇦 Canada</span></label>
+                  <label class="choice-card"><input type="radio" name="country" value="Canada" required><span>🇨🇦 Canada</span></label>
                   <label class="choice-card"><input type="radio" name="country" value="United States" required><span>🇺🇸 United States</span></label>
                 </div>
               </div>
               <div class="field full"><label for="business_type">Business type *</label><select id="business_type" name="business_type" required><option value="">Select business type</option><option>Sole Proprietorship</option><option>Corporation</option><option>Partnership</option><option>Tax Exempt Organization</option></select></div>
               <div class="field"><label for="legal_name">Legal business name *</label><input id="legal_name" name="legal_name" type="text" maxlength="160" autocomplete="organization" required></div>
-              <div class="field"><label for="license_number">Business registration / licence number *</label><input id="license_number" name="license_number" type="text" maxlength="80" required></div>
+              <div class="field"><label for="license_number">Business registration or tax identification number *</label><input id="license_number" name="license_number" type="text" maxlength="80" required></div>
               <div class="field full"><label for="business_address">Full business address *</label><input id="business_address" name="business_address" type="text" maxlength="240" autocomplete="address-line1" required></div>
               <div class="field"><label for="business_phone">Business phone *</label><input id="business_phone" name="business_phone" type="tel" maxlength="40" autocomplete="tel" required></div>
               <div class="field"><label for="business_email">Business email *</label><input id="business_email" name="business_email" type="email" maxlength="254" autocomplete="email" required></div>
               <div class="field"><label for="website">Business website</label><input id="website" name="website" type="url" maxlength="240" placeholder="https://"></div>
               <div class="field"><label for="established_date">Date business established *</label><input id="established_date" name="established_date" type="date" required></div>
-              <div class="field"><label for="annual_volume">Estimated annual card volume *</label><select id="annual_volume" name="annual_volume" required><option value="">Select a range</option><option>Under $100,000</option><option>$100,000–$500,000</option><option>$500,000–$1,000,000</option><option>$1,000,000–$5,000,000</option><option>Over $5,000,000</option></select></div>
+              <div class="field"><label for="annual_volume">Estimated annual card volume (CAD or USD, based on country) *</label><select id="annual_volume" name="annual_volume" required><option value="">Select a range</option><option>Under $100,000</option><option>$100,000–$500,000</option><option>$500,000–$1,000,000</option><option>$1,000,000–$5,000,000</option><option>Over $5,000,000</option></select></div>
               <div class="field"><label for="average_transaction">Average transaction amount (CAD/USD) *</label><input id="average_transaction" name="average_transaction" type="number" min="1" max="1000000" step="0.01" required></div>
               <div class="field full"><label for="business_description">What do you sell, and how are goods or services delivered? *</label><textarea id="business_description" name="business_description" maxlength="1500" placeholder="Describe your products or services, sales channels, fulfilment, and customers." required></textarea></div>
               <div class="field full">
@@ -95,12 +95,12 @@
               <div class="field full">
                 <label>Bank account type *</label>
                 <div class="choice-row">
-                  <label class="choice-card"><input type="radio" name="bank_type" value="Chequing" required checked><span>Chequing</span></label>
+                  <label class="choice-card"><input type="radio" name="bank_type" value="Chequing" required checked><span>Checking / chequing</span></label>
                   <label class="choice-card"><input type="radio" name="bank_type" value="Savings" required><span>Savings</span></label>
                 </div>
               </div>
               <div class="field full">
-                <label for="void_cheque">Void cheque or bank letter *</label>
+                <label for="void_cheque">Voided check, void cheque, or bank letter *</label>
                 <div class="file-field"><input id="void_cheque" name="void_cheque" type="file" accept=".pdf,.png,.jpg,.jpeg" required><span data-file-label>PDF, PNG, or JPG · maximum 5 MB</span></div>
               </div>
               <div class="field full"><div class="security-note yolk"><strong>Why we need this</strong><p>This document is used to verify the settlement account. Bank account numbers are not displayed in the application list and documents remain private.</p></div></div>
@@ -141,7 +141,7 @@
                 </div>
                 <div class="field"><label data-label="title">Title / position *</label><input data-owner-field="title" type="text" maxlength="100" placeholder="e.g. President" required></div>
                 <div class="field full">
-                  <label data-label="identity_document">Driver’s licence or passport *</label>
+                  <label data-label="identity_document">Driver’s license or passport *</label>
                   <div class="file-field"><input data-owner-field="identity_document" type="file" accept=".pdf,.png,.jpg,.jpeg" required><span data-file-label>PDF, PNG, or JPG · maximum 5 MB</span></div>
                 </div>
               </div>

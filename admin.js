@@ -219,7 +219,7 @@ if (loginView && dashboard) {
       const owners = applicationOwners(app);
       const groups = [
         ['Partner attribution', [['Partner', app.partner || app.agent_slug || app.agent_id || 'Direct YolkPay registration'], ['Legacy Agent ID', app.agent_id || '—'], ['Legacy Agent slug', app.agent_slug || '—']]],
-        ['Business', [['Country', app.country], ['Business type', app.business_type], ['Registration / licence', app.license_number], ['Address', app.business_address], ['Phone', app.business_phone], ['Email', app.business_email], ['Website', app.website], ['Established', app.established_date], ['Annual volume', app.annual_volume], ['Average transaction', app.average_transaction], ['Business activity', app.business_description]]],
+        ['Business', [['Country', app.country], ['Business type', app.business_type], ['Registration / tax ID', app.license_number], ['Address', app.business_address], ['Phone', app.business_phone], ['Email', app.business_email], ['Website', app.website], ['Established', app.established_date], ['Annual volume', app.annual_volume], ['Average transaction', app.average_transaction], ['Business activity', app.business_description]]],
         ...owners.map((owner, index) => [
           `Owner / controlling person ${index + 1}`,
           [['Name', owner.name], ['Title', owner.title], ['Ownership', `${owner.ownership_percent}%`], ['Phone', owner.phone], ['Email', owner.email]],

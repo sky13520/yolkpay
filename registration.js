@@ -27,7 +27,7 @@ if (registrationForm) {
     country: 'Country',
     business_type: 'Business type',
     legal_name: 'Legal business name',
-    license_number: 'Registration / licence',
+    license_number: 'Registration / tax ID',
     business_address: 'Business address',
     business_phone: 'Business phone',
     business_email: 'Business email',
