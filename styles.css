@@ -6,8 +6,8 @@
   --white: #fff;
   --yolk: #ffc83d;
   --yolk-soft: #fff4c7;
-  --green: #07c160;
-  --green-deep: #049648;
+  --green: #0F7A4B;
+  --green-deep: #0F7A4B;
   --radius: 22px;
   --shadow: 0 22px 70px rgba(22, 23, 25, .1);
   --max: 1180px;
@@ -108,7 +108,7 @@ h1 span, .accent { color: var(--green-deep); }
   overflow: hidden;
 }
 .terminal-scene::before { content: ""; position: absolute; width: 340px; height: 340px; right: -70px; bottom: -120px; border-radius: 50%; background: var(--yolk); }
-.terminal-scene::after { content: ""; position: absolute; width: 180px; height: 180px; left: -70px; top: -50px; border-radius: 50%; border: 42px solid rgba(7,193,96,.8); }
+.terminal-scene::after { content: ""; position: absolute; width: 180px; height: 180px; left: -70px; top: -50px; border-radius: 50%; border: 42px solid rgba(15,122,75,.8); }
 .terminal {
   position: absolute;
   width: 242px;
@@ -200,7 +200,7 @@ h3 { margin-bottom: 9px; font-size: 21px; line-height: 1.2; letter-spacing: -.02
 .billing-toggle button.active { background: var(--ink); color: #fff; }
 .pricing-wrap { text-align: center; }
 .price-card { position: relative; text-align: left; }
-.price-card.featured { border: 2px solid var(--green); box-shadow: 0 18px 60px rgba(7,193,96,.13); }
+.price-card.featured { border: 2px solid var(--green); box-shadow: 0 18px 60px rgba(15,122,75,.13); }
 .badge { position: absolute; right: 20px; top: 20px; padding: 5px 9px; border-radius: 999px; background: var(--green); color: #fff; font-size: 11px; font-weight: 850; }
 .price { margin: 22px 0 4px; font-size: 46px; font-weight: 850; letter-spacing: -.05em; }
 .price small { font-size: 14px; font-weight: 650; color: var(--muted); letter-spacing: 0; }
@@ -218,7 +218,7 @@ h3 { margin-bottom: 9px; font-size: 21px; line-height: 1.2; letter-spacing: -.02
 .field.full { grid-column: 1 / -1; }
 label { font-size: 13px; font-weight: 800; }
 input, select, textarea { width: 100%; padding: 13px 14px; border: 1px solid #d8d9d5; border-radius: 11px; background: #fff; color: var(--ink); outline: none; }
-input:focus, select:focus, textarea:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(7,193,96,.13); }
+input:focus, select:focus, textarea:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(15,122,75,.13); }
 textarea { min-height: 130px; resize: vertical; }
 .form-status { min-height: 24px; margin-top: 14px; color: var(--green-deep); font-weight: 700; }
 .contact-list { display: grid; gap: 14px; }
@@ -241,7 +241,7 @@ textarea { min-height: 130px; resize: vertical; }
 
 .site-footer { padding: 62px 0 25px; background: #111214; color: #fff; }
 .footer-grid { display: grid; grid-template-columns: 1.4fr repeat(3, 1fr); gap: 45px; }
-.footer-brand img { width: 170px; filter: brightness(0) invert(1); }
+.footer-brand img { width: 170px; }
 .footer-brand p { max-width: 320px; margin-top: 18px; color: #aeb1b7; }
 .footer-col strong { display: block; margin-bottom: 14px; }
 .footer-col a { display: block; margin: 9px 0; color: #aeb1b7; font-size: 14px; }
@@ -465,7 +465,7 @@ textarea { min-height: 130px; resize: vertical; }
 .choice-card { position: relative; }
 .choice-card input { position: absolute; opacity: 0; pointer-events: none; }
 .choice-card span { display: block; padding: 16px; border: 1px solid #d8d9d5; border-radius: 13px; background: #fff; cursor: pointer; }
-.choice-card input:checked + span { border-color: var(--green); box-shadow: 0 0 0 3px rgba(7,193,96,.12); background: #f4fcf8; }
+.choice-card input:checked + span { border-color: var(--green); box-shadow: 0 0 0 3px rgba(15,122,75,.12); background: #f4fcf8; }
 .input-suffix { position: relative; }
 .input-suffix input { padding-right: 42px; }
 .input-suffix span { position: absolute; right: 15px; top: 12px; color: var(--muted); font-weight: 800; }
@@ -506,7 +506,7 @@ textarea { min-height: 130px; resize: vertical; }
 .application-success { padding: 70px 45px; text-align: center; }
 .application-success h2 { margin-bottom: 15px; }
 .application-success > p { max-width: 590px; margin: 0 auto; color: var(--muted); font-size: 17px; }
-.success-mark { display: grid; place-items: center; width: 78px; height: 78px; margin: 0 auto 25px; border-radius: 50%; background: var(--green); color: #fff; font-size: 38px; font-weight: 900; box-shadow: 0 14px 35px rgba(7,193,96,.2); }
+.success-mark { display: grid; place-items: center; width: 78px; height: 78px; margin: 0 auto 25px; border-radius: 50%; background: var(--green); color: #fff; font-size: 38px; font-weight: 900; box-shadow: 0 14px 35px rgba(15,122,75,.2); }
 
 /* Merchant application admin */
 .admin-page { min-height: 100vh; background: #f5f5f1; }
