@@ -1,6 +1,6 @@
 User-agent: *
 Allow: /
-Disallow: /admin
-Disallow: /api/admin/
+Disallow: /api/
+Disallow: /downloads/
 
 Sitemap: https://yolkpay.com/sitemap.xml

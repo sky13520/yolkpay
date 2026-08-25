@@ -1,0 +1,18 @@
+# Keep non-public and duplicate-host pages out of search indexes.
+/admin.html
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet
+
+/apply.html
+  X-Robots-Tag: noindex, follow
+
+/404.html
+  X-Robots-Tag: noindex, follow
+
+/downloads/*
+  X-Robots-Tag: noindex
+
+https://new.yolkpay.com/*
+  X-Robots-Tag: noindex, nofollow
+
+https://yolkpay.condoqin.workers.dev/*
+  X-Robots-Tag: noindex, nofollow
