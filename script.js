@@ -75,7 +75,7 @@ const primaryNav=document.querySelector('.nav-links');
 if(primaryNav&&!([...primaryNav.querySelectorAll(':scope > a')].some(a=>a.textContent.trim()==='Merchants'))){
  const pricing=[...primaryNav.querySelectorAll(':scope > a')].find(a=>a.textContent.trim()==='Pricing');
  const merchants=document.createElement('a');
- merchants.href='merchants.html';
+ merchants.href='/merchants';
  merchants.textContent='Merchants';
  if(/\/merchants(?:\.html)?\/?$/u.test(window.location.pathname))merchants.setAttribute('aria-current','page');
  if(pricing)primaryNav.insertBefore(merchants,pricing);
