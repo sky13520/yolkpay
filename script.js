@@ -90,13 +90,3 @@ document.querySelectorAll('.footer-col').forEach((column) => {
   aiLink.textContent = 'AI';
   column.insertBefore(aiLink, column.querySelector('a'));
 });
-
-const aiAccessForm = document.querySelector('#ai-access-form');
-if (aiAccessForm) {
-  aiAccessForm.addEventListener('submit', (event) => {
-    event.preventDefault();
-    if (!aiAccessForm.reportValidity()) return;
-    const result = document.querySelector('#ai-access-result');
-    if (result) result.textContent = 'Demo access verified · Entry ready';
-  });
-}
