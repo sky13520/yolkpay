@@ -88,5 +88,5 @@ document.querySelectorAll('.footer-col').forEach((column) => {
   const aiLink = document.createElement('a');
   aiLink.href = '/ai';
   aiLink.textContent = 'AI';
-  column.insertBefore(aiLink, column.querySelector('a'));
+  column.appendChild(aiLink);
 });
