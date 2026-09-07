@@ -81,3 +81,22 @@ if(primaryNav&&!([...primaryNav.querySelectorAll(':scope > a')].some(a=>a.textCo
  if(pricing)primaryNav.insertBefore(merchants,pricing);
 }
 document.querySelectorAll('.footer-brand').forEach(b=>{if(!b.querySelector('.footer-contact')){const c=document.createElement('div');c.className='footer-contact';c.innerHTML='<a href="mailto:info@yolkpay.com">info@yolkpay.com</a><span>21-401 Alden Rd, Markham, ON, Canada</span>';b.appendChild(c)}});
+
+document.querySelectorAll('.footer-col').forEach((column) => {
+  if (column.querySelector('strong')?.textContent.trim() !== 'Resources') return;
+  if (column.querySelector('a[href="/ai"]')) return;
+  const aiLink = document.createElement('a');
+  aiLink.href = '/ai';
+  aiLink.textContent = 'AI';
+  column.insertBefore(aiLink, column.querySelector('a'));
+});
+
+const aiAccessForm = document.querySelector('#ai-access-form');
+if (aiAccessForm) {
+  aiAccessForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (!aiAccessForm.reportValidity()) return;
+    const result = document.querySelector('#ai-access-result');
+    if (result) result.textContent = 'Demo access verified · Entry ready';
+  });
+}

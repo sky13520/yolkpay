@@ -1,6 +1,7 @@
 .git
 .github
 .wrangler
+.wrangler-dry-run
 .assetsignore
 node_modules
 worker.js
